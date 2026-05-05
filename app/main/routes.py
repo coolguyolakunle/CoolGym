@@ -1,9 +1,10 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, abort
 from flask_login import login_required, current_user
 from ..extensions import db
 from ..models import User, ContactMessage, MembershipBooking, CoachClient, WorkoutPlan, ProgressLog, Message
-from app.utils import after_login_url, get_thread
+from app.utils import after_login_url, get_thread, save_profile_picture
 from datetime import datetime, timedelta
+from werkzeug.exceptions import RequestEntityTooLarge
 
 main = Blueprint('main', __name__)
 
@@ -57,6 +58,29 @@ def dashboard():
     active_plan = WorkoutPlan.query.filter_by(client_id=current_user.id, is_active=True).order_by(WorkoutPlan.created_at.desc()).first()
     logs        = ProgressLog.query.filter_by(client_id=current_user.id).order_by(ProgressLog.logged_at.desc()).limit(5).all()
     return render_template('dashboard.html', my_coach=my_coach, active_plan=active_plan, logs=logs)
+
+
+@main.route('/profile-picture', methods=['POST'])
+@login_required
+def update_profile_picture():
+    file = request.files.get('image')
+
+    if not file or file.filename == '':
+        flash('Please choose an image to upload.', 'error')
+        return redirect(url_for('main.dashboard'))
+
+    try:
+        filename = save_profile_picture(file)
+    except Exception:
+        flash('Image upload failed. Please try a smaller image.', 'error')
+        return redirect(url_for('main.dashboard'))
+
+    if filename:
+        current_user.image_file = filename
+        db.session.commit()
+        flash('Profile picture updated.', 'success')
+
+    return redirect(url_for('main.dashboard'))
 
 
 @main.route('/book-membership/<plan>', methods=['POST'])
@@ -223,3 +247,9 @@ def messages_poll(partner_id):
         'sent_at_iso': m.sent_at.isoformat(),
         'is_mine': m.sender_id == current_user.id
     } for m in msgs])
+
+
+@main.errorhandler(RequestEntityTooLarge)
+def file_too_large(e):
+    flash('That file is too large. Please upload an image smaller than 8 MB.', 'error')
+    return redirect(request.referrer or url_for('main.dashboard'))

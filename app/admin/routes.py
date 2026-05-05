@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from app.utils import save_profile_picture
 from ..extensions import db
 from ..models import User, ContactMessage, MembershipBooking, CoachClient
+from werkzeug.exceptions import RequestEntityTooLarge
 
 admin = Blueprint('admin', __name__)
 
@@ -80,12 +81,16 @@ def admin_coach_detail(coach_id):
             coach.bio        = request.form.get('bio', '')
             coach.is_active  = 'is_active' in request.form
 
-            # ✅ HANDLE IMAGE UPLOAD
+            # Handle image upload
             if 'image' in request.files:
                 file = request.files['image']
                 if file and file.filename != '':
-                    filename = save_profile_picture(file)
-                    coach.image_file = filename
+                    try:
+                        filename = save_profile_picture(file)
+                        coach.image_file = filename
+                    except Exception:
+                        flash('Image upload failed. Please try a smaller image.', 'error')
+                        return redirect(url_for('admin.admin_coach_detail', coach_id=coach.id))
 
             # Password update
             if request.form.get('new_password'):
@@ -232,3 +237,8 @@ def admin_api_stats():
 
 @admin.errorhandler(403)
 def forbidden(e): return render_template('admin/403.html'), 403
+
+@admin.errorhandler(RequestEntityTooLarge)
+def file_too_large(e):
+    flash('That file is too large. Please upload an image smaller than 8 MB.', 'error')
+    return redirect(request.referrer or url_for('admin.admin_coaches'))
