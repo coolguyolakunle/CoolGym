@@ -1,0 +1,235 @@
+/* ═══════════════════════════════════════════
+   Flexova — main.css
+   All custom animations, component styles,
+   and utilities used across the site.
+═══════════════════════════════════════════ */
+
+/* ── Base ── */
+* { font-family: 'DM Sans', sans-serif; }
+.font-display { font-family: 'Bebas Neue', sans-serif; }
+.brand-text   { color: #E8FF00; }
+.brand-bg     { background-color: #E8FF00; }
+.brand-border { border-color: #E8FF00; }
+html          { background: #0a0a0a; }
+
+/* ── Page transition overlay ── */
+#page-transition {
+  position: fixed; inset: 0; z-index: 9999;
+  background: #0a0a0a;
+  transform: translateY(0);
+  transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1);
+  pointer-events: none;
+}
+#page-transition.slide-out { transform: translateY(-100%); }
+
+/* ── Custom cursor ── */
+#cursor-dot {
+  width: 8px; height: 8px;
+  background: #E8FF00;
+  border-radius: 50%;
+  position: fixed; pointer-events: none; z-index: 9998;
+  transform: translate(-50%, -50%);
+  transition: width 0.2s ease, height 0.2s ease, opacity 0.2s ease;
+}
+#cursor-ring {
+  width: 36px; height: 36px;
+  border: 1.5px solid rgba(232,255,0,0.5);
+  border-radius: 50%;
+  position: fixed; pointer-events: none; z-index: 9997;
+  transform: translate(-50%, -50%);
+  transition: width 0.25s ease, height 0.25s ease, opacity 0.2s ease;
+}
+body.cursor-hover #cursor-dot  { width: 14px; height: 14px; }
+body.cursor-hover #cursor-ring { width: 52px; height: 52px; border-color: rgba(232,255,0,0.8); }
+@media (pointer: coarse) { #cursor-dot, #cursor-ring { display: none; } }
+
+/* ── Scroll progress bar ── */
+#scroll-progress {
+  position: fixed; top: 0; left: 0;
+  height: 2px; background: #E8FF00;
+  z-index: 9999; width: 0%;
+  transition: width 0.1s linear;
+}
+
+/* ── Navbar transition ── */
+#navbar { transition: transform 0.35s cubic-bezier(0.16,1,0.3,1), padding 0.3s ease, background 0.3s ease, box-shadow 0.3s ease; }
+
+/* ── Nav underline hover ── */
+.nav-link { position: relative; }
+.nav-link::after {
+  content: ''; position: absolute;
+  bottom: -2px; left: 0;
+  width: 0; height: 1px; background: #E8FF00;
+  transition: width 0.35s cubic-bezier(0.16,1,0.3,1);
+}
+.nav-link:hover::after,
+.nav-link.active::after { width: 100%; }
+
+/* ── Mobile menu slide ── */
+#mobile-menu {
+  max-height: 0; overflow: hidden; opacity: 0;
+  transition: max-height 0.4s cubic-bezier(0.16,1,0.3,1), opacity 0.3s ease;
+}
+#mobile-menu.open { max-height: 500px; opacity: 1; }
+
+/* ── Scroll reveal ── */
+.reveal {
+  opacity: 0; transform: translateY(40px);
+  transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1);
+}
+.reveal-left {
+  opacity: 0; transform: translateX(-40px);
+  transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1);
+}
+.reveal-right {
+  opacity: 0; transform: translateX(40px);
+  transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1);
+}
+.reveal.revealed,
+.reveal-left.revealed,
+.reveal-right.revealed { opacity: 1; transform: none; }
+
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+.reveal-delay-5 { transition-delay: 0.5s; }
+
+/* ── Stagger children ── */
+.stagger-children > * {
+  opacity: 0; transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.stagger-children.staggered > *:nth-child(1) { opacity:1; transform:none; transition-delay:0.05s; }
+.stagger-children.staggered > *:nth-child(2) { opacity:1; transform:none; transition-delay:0.15s; }
+.stagger-children.staggered > *:nth-child(3) { opacity:1; transform:none; transition-delay:0.25s; }
+.stagger-children.staggered > *:nth-child(4) { opacity:1; transform:none; transition-delay:0.35s; }
+.stagger-children.staggered > *:nth-child(5) { opacity:1; transform:none; transition-delay:0.45s; }
+.stagger-children.staggered > *:nth-child(6) { opacity:1; transform:none; transition-delay:0.55s; }
+
+/* ── Card hover lift ── */
+.card-hover {
+  transition: transform 0.35s cubic-bezier(0.16,1,0.3,1), box-shadow 0.35s ease;
+}
+.card-hover:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 24px 48px rgba(232,255,0,0.1);
+}
+
+/* ── Ripple button ── */
+.ripple-btn { position: relative; overflow: hidden; }
+.ripple-btn .ripple {
+  position: absolute; border-radius: 50%;
+  background: rgba(255,255,255,0.22);
+  transform: scale(0);
+  animation: flx-ripple 0.6s linear;
+  pointer-events: none;
+}
+
+/* ── Magnetic button ── */
+.magnetic { transition: transform 0.3s cubic-bezier(0.16,1,0.3,1); }
+
+/* ── Flash toasts ── */
+.flash-success { background:#1a2e00; border:1px solid #E8FF00; color:#E8FF00; }
+.flash-error   { background:#2e0000; border:1px solid #ff4444; color:#ff4444; }
+.flash-info    { background:#001a2e; border:1px solid #44aaff; color:#44aaff; }
+
+.toast-enter {
+  animation: flx-toast-in 0.4s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+
+/* ── Input focus glow ── */
+input, textarea, select {
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+input:focus, textarea:focus, select:focus {
+  box-shadow: 0 0 0 3px rgba(232,255,0,0.12);
+}
+
+/* ── Typewriter cursor blink ── */
+.typewriter-cursor {
+  display: inline-block; width: 3px; height: 1em;
+  background: #E8FF00; margin-left: 3px;
+  animation: flx-blink 1s step-end infinite;
+  vertical-align: text-bottom;
+}
+
+/* ── Parallax base ── */
+.parallax { will-change: transform; }
+
+/* ── Scrollbar styling ── */
+::-webkit-scrollbar       { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #111; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #444; }
+
+/* ── FAQ Accordion ── */
+.accordion-panel {
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+.accordion-panel:not(.accordion-closed) { /* open state handled by JS */ }
+.accordion-arrow {
+  transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+}
+
+/* ════════════════════════════════════════════
+   KEYFRAME ANIMATIONS
+════════════════════════════════════════════ */
+@keyframes flx-ripple {
+  to { transform: scale(4); opacity: 0; }
+}
+
+@keyframes flx-toast-in {
+  from { opacity: 0; transform: translateX(60px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes flx-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+@keyframes flx-shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-6px); }
+  60%       { transform: translateX(6px); }
+  80%       { transform: translateX(-4px); }
+}
+
+@keyframes flx-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes flx-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+/* Map styling */
+#map {
+  height: 260px;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+/* Remove Leaflet white focus outline */
+.leaflet-container {
+  background: #0a0a0a;
+}
+
+/* Popup styling */
+.leaflet-popup-content-wrapper {
+  background: #111 !important;
+  color: white !important;
+  border-radius: 10px;
+}
+
+.leaflet-popup-tip {
+  background: #111 !important;
+}
+
+img:hover {
+  transform: scale(1.05);
+  transition: 0.2s;
+}

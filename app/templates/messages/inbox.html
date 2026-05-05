@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Messages — CoolGym{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto px-6 pt-28 pb-20">
+  <div class="mb-8">
+    <span class="text-xs brand-text font-semibold uppercase tracking-widest">Inbox</span>
+    <h1 class="font-display text-4xl text-white mt-1">MESSAGES</h1>
+  </div>
+
+  <!-- If member, show "Message My Coach" shortcut -->
+  {% if current_user.role == 'member' %}
+    {% set assignment = current_user.coach_assignments|selectattr('is_active')|list|first %}
+    {% if assignment %}
+    <div class="bg-dark-700 border border-brand rounded-2xl p-4 mb-6 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        {% if my_coach.image_file %}
+          <img src="{{ my_coach.image_file }}" alt="{{ my_coach.full_name }}"
+              class="w-12 h-12 rounded-full object-cover flex-shrink-0">
+        {% else %}
+          <div class="w-12 h-12 brand-bg rounded-full flex items-center justify-center text-brand font-bold text-lg flex-shrink-0">
+            {{ my_coach.first_name[0] }}{{ my_coach.last_name[0] }}
+          </div>
+        {% endif %} 
+        <div>
+          <div class="text-sm font-semibold text-white">{{ assignment.coach.full_name }}</div>
+          <div class="text-xs text-gray-400">Your assigned coach · {{ assignment.coach.specialty or 'Fitness Coach' }}</div>
+        </div>
+      </div>
+      <a href="{{ url_for('main.messages_thread', partner_id=assignment.coach_id) }}"
+         class="brand-bg text-black font-bold px-4 py-2 rounded-xl text-xs hover:opacity-90 transition-opacity">
+        Chat →
+      </a>
+    </div>
+    {% endif %}
+  {% endif %}
+
+  <!-- Conversations -->
+  {% if convos %}
+  <div class="flex flex-col gap-3">
+    {% for c in convos %}
+    <a href="{{ url_for('main.messages_thread', partner_id=c.partner.id) }}"
+       class="bg-dark-700 border {% if c.unread > 0 %}border-brand{% else %}border-gray-800{% endif %} rounded-2xl p-4 flex items-center gap-4 hover:border-brand transition-colors group">
+      <div class="w-11 h-11 brand-bg rounded-full flex items-center justify-center text-black font-bold flex-shrink-0">
+        {{ c.partner.first_name[0] }}{{ c.partner.last_name[0] }}
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center justify-between mb-0.5">
+          <span class="font-semibold text-white text-sm group-hover:text-brand transition-colors">{{ c.partner.full_name }}</span>
+          <span class="text-xs text-gray-600">{% if c.last %}{{ c.last.sent_at.strftime('%d %b, %H:%M') }}{% endif %}</span>
+        </div>
+        <div class="text-xs text-gray-400 truncate">
+          {% if c.last %}
+            {% if c.last.sender_id == current_user.id %}<span class="text-gray-500">You: </span>{% endif %}
+            {{ c.last.body }}
+          {% endif %}
+        </div>
+        <div class="text-xs text-gray-600 mt-0.5 capitalize">{{ c.partner.role }}</div>
+      </div>
+      {% if c.unread > 0 %}
+      <span class="brand-bg text-black text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0">{{ c.unread }}</span>
+      {% endif %}
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center py-20">
+    <div class="text-6xl mb-4">💬</div>
+    <h2 class="font-display text-3xl text-white mb-2">NO MESSAGES YET</h2>
+    <p class="text-gray-400 text-sm">
+      {% if current_user.role == 'member' %}Your messages with your coach will appear here.
+      {% elif current_user.role == 'coach' %}Messages from your clients will appear here.
+      {% else %}All conversations will appear here.{% endif %}
+    </p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

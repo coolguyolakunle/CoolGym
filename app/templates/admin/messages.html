@@ -1,0 +1,87 @@
+{% extends "admin/base.html" %}
+{% block title %}Messages — Admin{% endblock %}
+{% block page_title %}Contact Messages{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <p class="text-sm text-gray-400">{{ messages.total }} messages total</p>
+</div>
+
+<div class="flex flex-col gap-4">
+  {% for msg in messages.items %}
+  <div class="bg-dark-800 border border-gray-800 rounded-2xl p-5 hover:border-gray-700 transition-colors" id="msg-{{ msg.id }}">
+    <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+      <div class="flex-1">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="w-8 h-8 bg-dark-600 rounded-full flex items-center justify-center text-sm font-bold text-gray-300 flex-shrink-0">
+            {{ msg.name[0].upper() }}
+          </div>
+          <div>
+            <span class="font-semibold text-white text-sm">{{ msg.name }}</span>
+            <span class="text-gray-500 text-xs ml-2">{{ msg.email }}</span>
+          </div>
+          <span class="text-xs text-gray-600 ml-auto sm:ml-0">{{ msg.sent_at.strftime('%d %b %Y, %H:%M') }}</span>
+        </div>
+        {% if msg.subject %}
+        <div class="text-xs brand-text font-semibold mb-2">Subject: {{ msg.subject }}</div>
+        {% endif %}
+        <!-- Collapsible message -->
+        <div class="text-sm text-gray-400 leading-relaxed" id="body-{{ msg.id }}">
+          <span class="short-text">{{ msg.message[:120] }}{% if msg.message|length > 120 %}…{% endif %}</span>
+          {% if msg.message|length > 120 %}
+          <span class="full-text hidden">{{ msg.message }}</span>
+          <button onclick="toggleMsg('{{ msg.id }}');" class="text-xs brand-text ml-1 hover:underline" id="btn-{{ msg.id }}">Read more</button>
+          {% endif %}
+        </div>
+      </div>
+      <div class="flex items-center gap-2 flex-shrink-0">
+        <a href="mailto:{{ msg.email }}?subject=Re: {{ msg.subject or 'Your message' }}" 
+          class="border border-gray-700 text-gray-300 text-xs px-3 py-1.5 rounded-lg hover:border-brand hover:text-brand transition-colors whitespace-nowrap">
+          Reply ↗
+        </a>
+        <form method="POST" action="{{ url_for('admin.admin_delete_message', mid=msg.id) }}" onsubmit="return confirm('Delete this message?')">
+          <button type="submit" class="border border-red-900 text-red-500 text-xs px-3 py-1.5 rounded-lg hover:bg-red-900/20 transition-colors">
+            Delete
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="text-center py-16 text-gray-500">
+    <div class="text-4xl mb-3">✉️</div>
+    <p>No messages yet.</p>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if messages.pages > 1 %}
+<div class="mt-6 flex items-center justify-between">
+  <span class="text-xs text-gray-500">Page {{ messages.page }} of {{ messages.pages }}</span>
+  <div class="flex gap-2">
+    {% if messages.has_prev %}<a href="{{ url_for('admin.admin_messages', page=messages.prev_num) }}" class="border border-gray-700 text-gray-300 text-xs px-3 py-1.5 rounded-lg hover:border-gray-500 transition-colors">← Prev</a>{% endif %}
+    {% if messages.has_next %}<a href="{{ url_for('admin.admin_messages', page=messages.next_num) }}" class="border border-gray-700 text-gray-300 text-xs px-3 py-1.5 rounded-lg hover:border-gray-500 transition-colors">Next →</a>{% endif %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  function toggleMsg(id) {
+    const short = document.querySelector(`#body-${id} .short-text`);
+    const full  = document.querySelector(`#body-${id} .full-text`);
+    const btn   = document.getElementById(`btn-${id}`);
+    if (full.classList.contains('hidden')) {
+      full.classList.remove('hidden');
+      short.classList.add('hidden');
+      btn.textContent = 'Show less';
+    } else {
+      full.classList.add('hidden');
+      short.classList.remove('hidden');
+      btn.textContent = 'Read more';
+    }
+  }
+</script>
+{% endblock %}

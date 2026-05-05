@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}CoolGym — Stronger Starts Here{% endblock %}</title>
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico')}}" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { DEFAULT: '#E8FF00', dark: '#c9de00' },
+            dark:  { DEFAULT: '#0a0a0a', 800: '#111111', 700: '#1a1a1a', 600: '#222222', 500: '#2e2e2e' }
+          },
+          fontFamily: {
+            display: ['"Bebas Neue"', 'sans-serif'],
+            body:    ['"DM Sans"', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}" />
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-dark text-white min-h-screen">
+
+  <!-- Page transition overlay -->
+  <div id="page-transition"></div>
+
+  <!-- Scroll progress bar -->
+  <div id="scroll-progress"></div>
+
+  <!-- Custom cursor (desktop only) -->
+  <div id="cursor-dot"></div>
+  <div id="cursor-ring"></div>
+
+  <!-- ── NAVBAR ── -->
+  <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 py-5 px-6 md:px-12">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <!-- Logo -->
+      <a href="{{ url_for('main.index') }}" class="flex items-center">
+        <img src="{{ url_for('static', filename='img/CoolGym.png') }}"
+          alt="CoolGym"
+          class="h-12 md:h-14 w-auto object-contain"/>
+      </a>
+
+      <!-- Desktop Links -->
+      <ul class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-300">
+        <li><a href="{{ url_for('main.about') }}"      class="nav-link hover:text-white transition-colors {% if request.endpoint == 'main.about' %}text-white active{% endif %}">About</a></li>
+        <li><a href="{{ url_for('main.membership') }}" class="nav-link hover:text-white transition-colors {% if request.endpoint == 'main.membership' %}text-white active{% endif %}">Membership</a></li>
+        <li><a href="{{ url_for('main.classes') }}"    class="nav-link hover:text-white transition-colors {% if request.endpoint == 'main.classes' %}text-white active{% endif %}">Classes</a></li>
+        <li><a href="{{ url_for('main.services') }}"   class="nav-link hover:text-white transition-colors {% if request.endpoint == 'main.services' %}text-white active{% endif %}">Services</a></li>
+        <li><a href="{{ url_for('main.contact') }}"    class="nav-link hover:text-white transition-colors {% if request.endpoint == 'main.contact' %}text-white active{% endif %}">Contact</a></li>
+      </ul>
+
+      <!-- Auth Buttons -->
+      <div class="hidden md:flex items-center gap-3">
+        {% if current_user.is_authenticated %}
+          {% if current_user.is_admin %}
+            <a href="{{ url_for('admin.admin_dashboard') }}" class="text-sm font-medium brand-text hover:opacity-80 transition-opacity flex items-center gap-1">
+              <span>⚙</span> Admin
+            </a>
+          {% endif %}
+          <a href="{{ url_for('main.dashboard') }}" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Dashboard</a>
+          <a href="{{ url_for('auth.logout') }}" class="brand-bg text-black text-sm font-semibold px-5 py-2 rounded-full hover:opacity-90 transition-opacity ripple-btn magnetic">Logout</a>
+        {% else %}
+          <a href="{{ url_for('auth.login') }}" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Login</a>
+          <a href="{{ url_for('auth.register') }}" class="brand-bg text-black text-sm font-semibold px-5 py-2 rounded-full hover:opacity-90 transition-opacity ripple-btn magnetic">Join Now</a>
+        {% endif %}
+      </div>
+
+      <!-- Mobile Hamburger -->
+      <button id="menu-btn" class="md:hidden text-white p-2 relative w-8 h-8 flex flex-col justify-center gap-1.5" aria-label="Menu">
+        <span class="hamburger-line block h-0.5 bg-white rounded transition-all duration-300 origin-center"></span>
+        <span class="hamburger-line block h-0.5 bg-white rounded transition-all duration-300"></span>
+        <span class="hamburger-line block h-0.5 bg-white rounded transition-all duration-300 origin-center"></span>
+      </button>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="md:hidden border-t border-gray-800 mt-4">
+      <ul class="flex flex-col gap-4 pt-4 pb-4 px-2 text-gray-300">
+        <li><a href="{{ url_for('main.about') }}"      class="block hover:text-brand transition-colors py-1">About</a></li>
+        <li><a href="{{ url_for('main.membership') }}" class="block hover:text-brand transition-colors py-1">Membership</a></li>
+        <li><a href="{{ url_for('main.classes') }}"    class="block hover:text-brand transition-colors py-1">Classes</a></li>
+        <li><a href="{{ url_for('main.services') }}"   class="block hover:text-brand transition-colors py-1">Services</a></li>
+        <li><a href="{{ url_for('main.contact') }}"    class="block hover:text-brand transition-colors py-1">Contact</a></li>
+        {% if current_user.is_authenticated %}
+          {% if current_user.is_admin %}
+            <li><a href="{{ url_for('admin.admin_dashboard') }}" class="block brand-text font-semibold hover:opacity-80 transition-opacity py-1">⚙ Admin Panel</a></li>
+          {% endif %}
+          <li><a href="{{ url_for('main.dashboard') }}" class="block hover:text-brand transition-colors py-1">Dashboard</a></li>
+          <li><a href="{{ url_for('auth.logout') }}" class="inline-block brand-bg text-black font-semibold px-5 py-2 rounded-full text-sm ripple-btn">Logout</a></li>
+        {% else %}
+          <li><a href="{{ url_for('auth.login') }}"    class="block hover:text-brand transition-colors py-1">Login</a></li>
+          <li><a href="{{ url_for('auth.register') }}" class="inline-block brand-bg text-black font-semibold px-5 py-2 rounded-full text-sm ripple-btn">Join Now</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="fixed top-20 right-4 z-[9990] flex flex-col gap-2 max-w-sm w-full" id="toast-container">
+        {% for category, message in messages %}
+          <div class="flash-{{ category }} px-4 py-3 rounded-xl text-sm font-medium flex items-start gap-3 shadow-2xl toast-enter" id="flash-{{ loop.index }}">
+            <span class="flex-1">{{ message }}</span>
+            <button onclick="dismissToast(this.parentElement)" class="opacity-60 hover:opacity-100 mt-0.5 transition-opacity">✕</button>
+          </div>
+        {% endfor %}
+      </div>
+      <script>
+        function dismissToast(el) {
+          el.style.transition = 'all 0.3s ease';
+          el.style.opacity = '0';
+          el.style.transform = 'translateX(60px)';
+          setTimeout(() => el.remove(), 300);
+        }
+        setTimeout(() => {
+          document.querySelectorAll('[id^=flash-]').forEach(el => dismissToast(el));
+        }, 4500);
+      </script>
+    {% endif %}
+  {% endwith %}
+
+  <!-- Page Content -->
+  <main id="main-content">{% block content %}{% endblock %}</main>
+
+  <!-- ── FOOTER ── -->
+  <footer class="bg-dark-800 border-t border-gray-800 mt-20">
+    <div class="max-w-7xl mx-auto px-6 md:px-12 py-16">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-10">
+        <div class="md:col-span-2 reveal">
+          <div class="font-display text-4xl brand-text mb-4"><img src="{{ url_for('static', filename='img/CoolGym.png') }}"
+          alt="CoolGym"
+          class="h-12 md:h-14 w-auto object-contain"/></div>
+          <p class="text-gray-400 text-sm leading-relaxed max-w-xs">A modern fitness space built to help you train smarter, move better, and feel your absolute best.</p>
+          <div class="flex gap-4 mt-6">
+            <a href="#" class="w-9 h-9 rounded-full bg-gray-700 hover:bg-brand flex items-center justify-center transition-all">
+              <i class="fab fa-facebook-f text-white hover:text-black text-sm"></i>
+            </a>
+
+            <a href="#" class="w-9 h-9 rounded-full bg-gray-700 hover:bg-brand flex items-center justify-center transition-all">
+              <i class="fab fa-instagram text-white hover:text-black text-sm"></i>
+            </a>
+
+            <a href="#" class="w-9 h-9 rounded-full bg-gray-700 hover:bg-brand flex items-center justify-center transition-all">
+              <i class="fab fa-whatsapp text-white hover:text-black text-sm"></i>
+            </a>
+
+            <a href="#" class="w-9 h-9 rounded-full bg-gray-700 hover:bg-brand flex items-center justify-center transition-all">
+              <i class="fab fa-tiktok text-white hover:text-black text-sm"></i>
+            </a>
+
+          </div>
+        </div>
+        <div class="reveal reveal-delay-1">
+          <h4 class="font-semibold text-white mb-4">Quick Links</h4>
+          <ul class="flex flex-col gap-2 text-sm text-gray-400">
+            <li><a href="{{ url_for('main.about') }}"      class="hover:text-brand transition-colors hover:translate-x-1 inline-block transition-transform">About Us</a></li>
+            <li><a href="{{ url_for('main.classes') }}"    class="hover:text-brand transition-colors hover:translate-x-1 inline-block transition-transform">Classes</a></li>
+            <li><a href="{{ url_for('main.membership') }}" class="hover:text-brand transition-colors hover:translate-x-1 inline-block transition-transform">Membership</a></li>
+            <li><a href="{{ url_for('main.services') }}"   class="hover:text-brand transition-colors hover:translate-x-1 inline-block transition-transform">Services</a></li>
+            <li><a href="{{ url_for('main.contact') }}"    class="hover:text-brand transition-colors hover:translate-x-1 inline-block transition-transform">Contact</a></li>
+          </ul>
+        </div>
+        <div class="reveal reveal-delay-2">
+          <h4 class="font-semibold text-white mb-4">Contact</h4>
+          <ul class="flex flex-col gap-2 text-sm text-gray-400">
+            <li>📍 12 Power Street, Lagos</li>
+            <li>📞 +23463680215</li>
+            <li>✉️ hello@coolgym.com</li>
+            <li class="mt-2">Mon–Fri: 5am – 11pm</li>
+            <li>Sat–Sun: 7am – 9pm</li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-gray-800 mt-12 pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-500">
+        <span>© 2026 CoolGym. All rights reserved.</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Global JS -->
+  <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

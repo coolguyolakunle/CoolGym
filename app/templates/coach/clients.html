@@ -1,0 +1,71 @@
+{% extends "coach/base.html" %}
+{% block title %}My Clients — Coach Portal{% endblock %}
+{% block page_title %}My Clients{% endblock %}
+{% block content %}
+
+<div class="mb-6">
+  <p class="text-sm text-gray-400">{{ clients|length }} client{{ 's' if clients|length != 1 else '' }} assigned to you</p>
+</div>
+
+{% if clients %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+  {% for cc in clients %}
+  <div class="bg-dark-800 border border-gray-800 rounded-2xl p-6 card-hover flex flex-col">
+    <!-- Header -->
+    <div class="flex items-center gap-3 mb-4">
+      <div class="w-12 h-12 brand-bg rounded-full flex items-center justify-center text-black font-bold text-lg flex-shrink-0">
+        {{ cc.client.first_name[0] }}{{ cc.client.last_name[0] }}
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="font-semibold text-white truncate">{{ cc.client.full_name }}</div>
+        <div class="text-xs text-gray-500 truncate">{{ cc.client.email }}</div>
+      </div>
+    </div>
+
+    <!-- Stats row -->
+    <div class="grid grid-cols-3 gap-2 mb-4">
+      {% set plan_count = cc.client.workout_plans|length %}
+      {% set log_count  = cc.client.progress_logs|length %}
+      {% set unread_msgs = [] %}
+      {% for m in cc.client.sent_messages %}{% if m.receiver_id == current_user.id and not m.is_read %}{% set _ = unread_msgs.append(1) %}{% endif %}{% endfor %}
+      {% for stat, val in [('Plans', plan_count),('Logs', log_count),('Msgs', unread_msgs|length)] %}
+      <div class="bg-dark-700 rounded-xl p-2 text-center">
+        <div class="font-display text-xl brand-text">{{ val }}</div>
+        <div class="text-xs text-gray-500">{{ stat }}</div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Membership & date -->
+    <div class="flex items-center justify-between mb-4 text-xs">
+      <span class="badge-{{ cc.client.membership }} px-2.5 py-1 rounded-full font-semibold">{{ cc.client.membership.capitalize() }}</span>
+      <span class="text-gray-600">Since {{ cc.assigned_at.strftime('%d %b %Y') }}</span>
+    </div>
+
+    {% if cc.notes %}
+    <div class="bg-dark-700 rounded-xl p-2.5 mb-4 text-xs text-gray-400 italic line-clamp-2">"{{ cc.notes }}"</div>
+    {% endif %}
+
+    <!-- Actions -->
+    <div class="flex gap-2 mt-auto">
+      <a href="{{ url_for('coach.coach_client_detail', client_id=cc.client_id) }}"
+         class="flex-1 text-center brand-bg text-black font-bold py-2 rounded-xl text-xs hover:opacity-90 transition-opacity">
+        View Profile
+      </a>
+      <a href="{{ url_for('main.messages_thread', partner_id=cc.client_id) }}"
+         class="border border-gray-700 text-gray-300 font-semibold py-2 px-3 rounded-xl text-xs hover:border-brand hover:text-brand transition-colors">
+        💬
+      </a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-20">
+  <div class="text-6xl mb-4">👥</div>
+  <h2 class="font-display text-3xl text-white mb-2">NO CLIENTS YET</h2>
+  <p class="text-gray-400 text-sm max-w-xs mx-auto">Ask your admin to assign clients to you. They'll appear here once assigned.</p>
+</div>
+{% endif %}
+
+{% endblock %}

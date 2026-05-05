@@ -1,0 +1,59 @@
+{% extends "admin/base.html" %}
+{% block title %}Add Member — Admin{% endblock %}
+{% block page_title %}Add Member{% endblock %}
+
+{% block content %}
+<div class="max-w-lg">
+  <div class="flex items-center gap-2 text-sm text-gray-500 mb-6">
+    <a href="{{ url_for('admin.admin_users') }}" class="hover:text-brand transition-colors">Members</a>
+    <span>›</span><span class="text-white">Add New</span>
+  </div>
+
+  <div class="bg-dark-800 border border-gray-800 rounded-2xl p-6">
+    <h3 class="font-semibold text-white mb-5">New Member Details</h3>
+    <form method="POST" class="flex flex-col gap-4">
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-widest">First Name</label>
+          <input type="text" name="first_name" required placeholder="John"
+            class="w-full bg-dark-700 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-brand transition-colors">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-widest">Last Name</label>
+          <input type="text" name="last_name" required placeholder="Doe"
+            class="w-full bg-dark-700 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-brand transition-colors">
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-widest">Email</label>
+        <input type="email" name="email" required placeholder="john@example.com"
+          class="w-full bg-dark-700 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-brand transition-colors">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-widest">Password</label>
+        <input type="password" name="password" required minlength="6" placeholder="Min. 6 characters"
+          class="w-full bg-dark-700 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-brand transition-colors">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-widest">Membership Plan</label>
+        <select name="membership" class="w-full bg-dark-700 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-brand transition-colors">
+          <option value="none">No Plan</option>
+          <option value="basic">Basic</option>
+          <option value="elite">Elite</option>
+          <option value="pro">Pro</option>
+        </select>
+      </div>
+      <div>
+        <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+          <input type="checkbox" name="is_admin" class="accent-brand">
+          Grant admin access
+        </label>
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="brand-bg text-black font-bold px-6 py-2.5 rounded-xl text-sm hover:opacity-90 transition-opacity">Create Member</button>
+        <a href="{{ url_for('admin.admin_users') }}" class="border border-gray-700 text-gray-300 font-semibold px-6 py-2.5 rounded-xl text-sm hover:border-gray-500 transition-colors">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

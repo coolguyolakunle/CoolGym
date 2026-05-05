@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>{% block title %}Coach Portal — CoolGym{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico')}}" type="image/x-icon">
+  <script>tailwind.config={theme:{extend:{colors:{brand:{DEFAULT:'#E8FF00'},dark:{DEFAULT:'#0a0a0a',800:'#111111',700:'#1a1a1a',600:'#222222',500:'#2e2e2e'}},fontFamily:{display:['"Bebas Neue"','sans-serif']}}}}</script>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}"/>
+  {% block extra_head %}{% endblock %}
+  <style>
+    .sidebar-link{display:flex;align-items:center;gap:.75rem;padding:.6rem 1rem;border-radius:.75rem;font-size:.875rem;font-weight:500;color:#9ca3af;transition:all .2s}
+    .sidebar-link:hover,.sidebar-link.active{background:#1a1a1a;color:#E8FF00}
+    .sidebar-link.active{border-left:3px solid #E8FF00;padding-left:calc(1rem - 3px)}
+    .badge-none{background:#1a1a1a;color:#6b7280}.badge-basic{background:#1a1a00;color:#E8FF00}
+    .badge-elite{background:#1a0a2e;color:#a78bfa}.badge-pro{background:#1a1500;color:#fbbf24}
+    ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#111}::-webkit-scrollbar-thumb{background:#333;border-radius:3px}
+  </style>
+</head>
+<body class="bg-dark text-white min-h-screen flex">
+
+  <!-- Sidebar -->
+  <aside id="sidebar" class="fixed top-0 left-0 h-screen w-60 bg-dark-800 border-r border-gray-800 z-40 flex flex-col transition-transform duration-300 md:translate-x-0 -translate-x-full">
+    <div class="px-5 py-5 border-b border-gray-800">
+      <a href="{{ url_for('main.index') }}" class="font-display text-2xl brand-text tracking-widest"><img src="{{ url_for('static', filename='img/CoolGym.png') }}"
+          alt="CoolGym"
+          class="h-12 md:h-14 w-auto object-contain"/></a>
+      <div class="text-xs text-gray-500 mt-0.5">Coach Portal</div>
+    </div>
+    <nav class="flex-1 px-3 py-4 flex flex-col gap-1 overflow-y-auto">
+      <div class="text-xs text-gray-600 uppercase tracking-widest px-3 mb-2">Overview</div>
+      <a href="{{ url_for('coach.coach_dashboard') }}" class="sidebar-link {% if request.endpoint=='coach_dashboard' %}active{% endif %}">
+        <span>📊</span> Dashboard
+      </a>
+      <div class="text-xs text-gray-600 uppercase tracking-widest px-3 mt-4 mb-2">My Clients</div>
+      <a href="{{ url_for('coach.coach_clients') }}" class="sidebar-link {% if 'coach_client' in request.endpoint %}active{% endif %}">
+        <span>👥</span> Clients
+      </a>
+      <div class="text-xs text-gray-600 uppercase tracking-widest px-3 mt-4 mb-2">Communication</div>
+      <a href="{{ url_for('main.messages_inbox') }}" class="sidebar-link {% if 'messages' in request.endpoint %}active{% endif %}">
+        <span>💬</span> Messages
+        {% if unread_count > 0 %}<span class="ml-auto brand-bg text-black text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">{{ unread_count }}</span>{% endif %}
+      </a>
+      <div class="text-xs text-gray-600 uppercase tracking-widest px-3 mt-4 mb-2">Account</div>
+      <a href="{{ url_for('main.index') }}" target="_blank" class="sidebar-link"><span>🌐</span> View Site</a>
+      <a href="{{ url_for('auth.logout') }}" class="sidebar-link hover:text-red-400"><span>🚪</span> Sign Out</a>
+    </nav>
+    <div class="px-4 py-4 border-t border-gray-800">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 brand-bg rounded-full flex items-center justify-center text-black font-bold text-xs">
+          {% if current_user.image_file %}
+            <img 
+              src="{{ current_user.image_file }}"
+              class="w-8 h-8 rounded-full object-cover"
+            >
+          {% else %}
+            <div class="w-8 h-8 brand-bg rounded-full flex items-center justify-center text-black font-bold text-xs">
+              {{ current_user.first_name[0] }}{{ current_user.last_name[0] }}
+            </div>
+          {% endif %}
+        </div>
+        <div>
+          <div class="text-xs font-semibold text-white">{{ current_user.full_name }}</div>
+          <div class="text-xs text-gray-500">{{ current_user.specialty or 'Coach' }}</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div id="overlay" class="fixed inset-0 bg-black/60 z-30 hidden md:hidden" onclick="document.getElementById('sidebar').classList.toggle('-translate-x-full');this.classList.add('hidden')"></div>
+
+  <!-- Main -->
+  <div class="flex-1 md:ml-60 flex flex-col min-h-screen">
+    <header class="sticky top-0 z-20 bg-dark-800 border-b border-gray-800 px-6 py-3.5 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <button onclick="document.getElementById('sidebar').classList.toggle('-translate-x-full');document.getElementById('overlay').classList.toggle('hidden')" class="md:hidden text-gray-400">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <h1 class="font-display text-xl text-white tracking-wide">{% block page_title %}Dashboard{% endblock %}</h1>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="{{ url_for('main.messages_inbox') }}" class="relative text-gray-400 hover:text-white transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+          {% if unread_count > 0 %}<span class="absolute -top-1 -right-1 brand-bg text-black text-xs w-4 h-4 rounded-full flex items-center justify-center font-bold">{{ unread_count }}</span>{% endif %}
+        </a>
+      </div>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="px-6 pt-4 flex flex-col gap-2">
+          {% for cat, msg in messages %}
+            <div class="flash-{{ cat }} px-4 py-2.5 rounded-xl text-sm font-medium flex items-center justify-between">
+              <span>{{ msg }}</span>
+              <button onclick="this.parentElement.remove()" class="opacity-60 hover:opacity-100 ml-4">✕</button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <main class="flex-1 p-6">{% block content %}{% endblock %}</main>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

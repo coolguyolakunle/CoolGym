@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}Classes — CoolGym{% endblock %}
+{% block content %}
+<div class="pt-24 pb-20">
+    <div class="max-w-4xl mx-auto px-6 text-center py-16">
+        <span class="text-xs brand-text font-semibold uppercase tracking-widest">Our Classes</span>
+        <h1 class="font-display text-6xl md:text-7xl text-white mt-3">FIND YOUR<br/>PERFECT CLASS</h1>
+        <p class="text-gray-400 mt-4 max-w-xl mx-auto">From high-intensity cardio to mindful stretching — we have a class for every goal and fitness level.</p>
+    </div>
+
+  <!-- Schedule -->
+    <div class="max-w-7xl mx-auto px-6 md:px-12">
+        <!-- Filter tabs -->
+        <div class="flex flex-wrap gap-3 mb-8">
+            {% for label, val in [('All Levels','all'),('Beginner','Beginner'),('Intermediate','Intermediate'),('Advanced','Advanced')] %}
+            <button data-filter="{{ val }}"
+                class="border text-sm font-semibold px-5 py-2 rounded-full transition-all ripple-btn
+                    {% if val == 'all' %}brand-bg text-black border-transparent{% else %}border-gray-600 text-gray-300{% endif %}">
+                {{ label }}
+            </button>
+            {% endfor %}
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+           {% set classes_list = [
+                ('strength.jpg','Strength & Power','Advanced','Mon/Wed/Fri 6:00 AM','60 min','Ethan Walker','Build explosive strength and muscle through compound movements and progressive overload.','#E8FF00'),
+                ('hiit.jpg','HIIT Blast','All Levels','Tue/Thu 7:00 AM','45 min','Carlos Bennett','High-intensity intervals that torch calories and boost your metabolism.','#ff6b35'),
+                ('yoga.jpg','Yoga Flow','Beginner','Daily 8:00 AM','60 min','Lena Matthews','Improve flexibility and balance.','#a78bfa'),
+                ('boxing.jpg','Boxing Cardio','Intermediate','Mon/Wed 6:00 PM','45 min','Carlos Bennett','Punch your way to fitness.','#f472b6'),
+                ('run.jpg','Endurance Run','All Levels','Tue/Thu/Sat 7:00 AM','50 min','Ethan Walker','Build stamina and endurance.','#34d399'),
+                ('recovery.jpg','Mobility & Recovery','All Levels','Fri/Sun 5:00 PM','45 min','Lena Matthews','Stretch and recover properly.','#60a5fa'),
+            ] %}
+            {% for icon, name, level, schedule, duration, trainer, desc, color in classes_list %}
+            <div class="bg-dark-700 border border-gray-800 rounded-2xl overflow-hidden card-hover reveal" data-level="{{ level }}">
+    
+                <!-- Image -->
+                <div class="h-40 w-full overflow-hidden">
+                    <img src="{{ url_for('static', filename='img/classes/' ~ icon) }}"
+                        alt="{{ name }}"
+                        class="w-full h-full object-cover">
+                </div>
+
+                <!-- Content -->
+                <div class="p-6">
+                    
+                    <!-- Level (NOW BELOW IMAGE ✅) -->
+                    <div class="mb-3">
+                        <span class="text-xs font-semibold px-3 py-1 rounded-full bg-dark-500 text-gray-300">
+                            {{ level }}
+                        </span>
+                    </div>
+
+                    <h3 class="font-display text-2xl text-white mb-2">{{ name }}</h3>
+                    <p class="text-gray-400 text-xs leading-relaxed mb-4">{{ desc }}</p>
+
+                    <div class="flex flex-col gap-2 text-xs text-gray-500">
+                        <div>⏰ {{ schedule }}</div>
+                        <div>⌛ {{ duration }}</div>
+                        <div>👤 {{ trainer }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Weekly Schedule Table -->
+        <div class="mt-16 reveal">
+            <h2 class="font-display text-4xl text-white mb-8">WEEKLY SCHEDULE</h2>
+            <div class="overflow-x-auto rounded-2xl border border-gray-800">
+                <table class="w-full text-sm" id="schedule-table">
+                    <thead>
+                        <tr class="bg-dark-600 border-b border-gray-800">
+                            <th class="text-left px-4 py-3 text-gray-400 font-medium">Time</th>
+                            {% for day in ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'] %}
+                            <th class="text-left px-4 py-3 text-gray-400 font-medium">{{ day }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% set schedule_grid = [
+                        ('6:00 AM','Strength & Power','-','Strength & Power','-','Strength & Power','-'),
+                        ('7:00 AM','-','HIIT Blast','-','HIIT Blast','-','Endurance Run'),
+                        ('8:00 AM','Yoga Flow','Yoga Flow','Yoga Flow','Yoga Flow','Yoga Flow','Yoga Flow'),
+                        ('6:00 PM','Boxing Cardio','-','Boxing Cardio','-','-','-'),
+                        ('5:00 PM','-','-','-','-','Mobility','Mobility'),
+                        ] %}
+                        {% for row in schedule_grid %}
+                        <tr class="border-b border-gray-800 hover:bg-dark-600 transition-colors">
+                            <td class="px-4 py-3 text-gray-300 font-medium">{{ row[0] }}</td>
+                            {% for cell in row[1:] %}
+                            <td class="px-4 py-3 {% if cell != '-' %}brand-text font-semibold{% else %}text-gray-700{% endif %}">{{ cell }}</td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="mt-12 text-center reveal">
+        <p class="text-gray-400 mb-4">Ready to join a class?</p>
+        {% if current_user.is_authenticated %}
+            <a href="{{ url_for('main.membership') }}" class="brand-bg text-black font-bold px-10 py-4 rounded-full text-sm hover:opacity-90 transition-opacity inline-block ripple-btn magnetic">Upgrade Membership</a>
+        {% else %}
+            <a href="{{ url_for('auth.register') }}" class="brand-bg text-black font-bold px-10 py-4 rounded-full text-sm hover:opacity-90 transition-opacity inline-block ripple-btn magnetic">Join Today — Free</a>
+        {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/pages/classes.js') }}" defer></script>
+{% endblock %}

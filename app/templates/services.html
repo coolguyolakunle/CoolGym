@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Services — CoolGym{% endblock %}
+{% block content %}
+<div class="pt-24 pb-20">
+    <div class="max-w-7xl mx-auto px-6 md:px-12 py-20 grid grid-cols-1 md:grid-cols-3 items-center gap-6">
+
+        <!-- LEFT IMAGE -->
+        <div class="hidden md:block">
+            <img src="{{ url_for('static', filename='img/service/service-left.jpg') }}"
+                class="rounded-2xl h-80 w-full object-cover opacity-80 hover:opacity-100 transition">
+        </div>
+
+        <!-- CENTER TEXT -->
+        <div class="text-center">
+            <span class="text-xs brand-text font-semibold uppercase tracking-widest">What We Offer</span>
+            <h1 class="font-display text-6xl md:text-7xl text-white mt-3">
+                YOUR GOALS.<br/>OUR GUIDANCE.
+            </h1>
+            <p class="text-gray-400 mt-4 max-w-xl mx-auto">
+                Focused support designed to help you train better, move smarter, and reach your goals with confidence.
+            </p>
+        </div>
+
+        <!-- RIGHT IMAGE -->
+        <div class="hidden md:block">
+            <img src="{{ url_for('static', filename='img/service/service-right.jpg') }}"
+                class="rounded-2xl h-80 w-full object-cover opacity-80 hover:opacity-100 transition">
+        </div>
+
+    </div>
+
+    <div class="max-w-7xl mx-auto px-6 md:px-12">
+        {% set services = [
+        ('01','Personal Training','💪','One-on-one coaching tailored to your body, pace, and goals. Customized sessions, expert guidance, measurable progress.',['1:1 Coaching','Form Guidance','Motivation','Progress Tracking','Expert Support']),
+        ('02','Nutrition Coaching','🥗','Personalized diet plans, meal guidance, and lifestyle adjustments to help you build healthy, sustainable habits.',['Meal Plans','Healthy Habits','Diet Guidance','Sustainable Results','Supplement Advice']),
+        ('03','Group Classes','🔥','High-energy classes for strength, HIIT, mobility, and endurance. Train together, stay motivated, push further.',['High Energy','Strength & HIIT','Community Drive','Instructor-Led','All Levels Welcome']),
+        ('04','Body Transform','⚡','Structured 8–12 week programs designed for serious results. Track progress weekly with dedicated support.',['8–12 Weeks','Full Program','Goal Driven','Weekly Check-ins','Before & After Tracking']),
+        ('05','Online Coaching','📱','Remote workouts, weekly check-ins, and digital progress tracking perfect for those who want flexibility.',['Remote Training','Weekly Calls','Digital Tracking','Flexible Access','App Integration']),
+        ] %}
+        <div class="flex flex-col gap-8">
+            {% for num, name, icon, desc, features in services %}
+            <div class="bg-dark-700 border border-gray-800 rounded-3xl p-8 flex flex-col md:flex-row gap-8 items-start card-hover">
+                <div class="flex-shrink-0">
+                    <div class="text-5xl mb-2">{{ icon }}</div>
+                    <div class="font-display text-5xl brand-text opacity-30">{{ num }}</div>
+                </div>
+                <div class="flex-1">
+                    <h2 class="font-display text-3xl text-white mb-3">{{ name }}</h2>
+                    <p class="text-gray-400 leading-relaxed mb-5 max-w-2xl">{{ desc }}</p>
+                    <div class="flex flex-wrap gap-2">
+                        {% for f in features %}
+                        <span class="bg-dark-500 border border-gray-700 text-gray-300 text-xs font-medium px-3 py-1.5 rounded-full">{{ f }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="flex-shrink-0">
+                    <a href="{{ url_for('main.contact') }}" class="brand-bg text-black font-bold px-6 py-3 rounded-full text-sm hover:opacity-90 transition-opacity whitespace-nowrap">Learn More</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="mt-16 brand-bg rounded-3xl p-10 text-center">
+            <h2 class="font-display text-4xl text-black mb-3">NOT SURE WHICH SERVICE?</h2>
+            <p class="text-black/70 mb-6 max-w-md mx-auto text-sm">Book a free consultation and we'll match you to the perfect program for your goals.</p>
+            <a href="{{ url_for('main.contact') }}" class="bg-black text-white font-bold px-8 py-3.5 rounded-full text-sm hover:bg-dark-600 transition-colors inline-block">Book Free Consult</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

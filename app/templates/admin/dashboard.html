@@ -1,0 +1,136 @@
+{% extends "admin/base.html" %}
+{% block title %}Admin Dashboard — CoolGym{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block extra_head %}{% endblock %}
+
+{% block content %}
+<!-- ── KPI Cards ── -->
+<div class="grid grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
+  {% set kpis = [
+    ('Members', total_users, '👥', '#E8FF00', '+' ~ new_this_week ~ ' this week'),
+    ('Coaches', total_coaches, '🏋️', '#a78bfa', 'On the team'),
+    ('Active', active_members, '✅', '#34d399', (active_members * 100 // total_users if total_users else 0)|string ~ '% of all'),
+    ('Assignments', total_assignments, '🔗', '#60a5fa', 'Coach-client pairs'),
+    ('Revenue', '$' ~ "%.0f"|format(revenue), '💰', '#fbbf24', 'Estimated MRR'),
+    ('Messages', total_messages, '✉️', '#f472b6', 'Contact inbox'),
+  ] %}
+  {% for label, value, icon, color, sub in kpis %}
+  <div class="stat-card flex flex-col gap-1">
+    <div class="flex items-center justify-between mb-1">
+      <span class="text-xs text-gray-500">{{ label }}</span>
+      <span class="text-lg">{{ icon }}</span>
+    </div>
+    <div class="font-display text-3xl" style="color:{{ color }}">{{ value }}</div>
+    <div class="text-xs text-gray-600">{{ sub }}</div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- ── Charts Row ── -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+  <!-- Signups Chart -->
+  <div class="lg:col-span-2 bg-dark-800 border border-gray-800 rounded-2xl p-5">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="font-semibold text-white text-sm">Member Signups — Last 14 Days</h2>
+      <span class="text-xs brand-text font-bold">+{{ new_this_week }} this week</span>
+    </div>
+    <canvas id="signupChart" height="100"></canvas>
+  </div>
+  <!-- Membership Distribution -->
+  <div class="bg-dark-800 border border-gray-800 rounded-2xl p-5">
+    <h2 class="font-semibold text-white text-sm mb-4">Membership Distribution</h2>
+    <canvas id="distChart" height="160"></canvas>
+    <div class="mt-4 flex flex-col gap-2">
+      {% for plan, count, color in [
+        ('Pro', membership_counts.pro, '#fbbf24'),
+        ('Elite', membership_counts.elite, '#a78bfa'),
+        ('Basic', membership_counts.basic, '#E8FF00'),
+        ('No Plan', membership_counts.none, '#374151'),
+      ] %}
+      <div class="flex items-center justify-between text-xs">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full" style="background:{{ color }}"></span>
+          <span class="text-gray-400">{{ plan }}</span>
+        </div>
+        <span class="text-white font-semibold">{{ count }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- ── Recent Activity ── -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <!-- Recent Users -->
+  <div class="lg:col-span-1 bg-dark-800 border border-gray-800 rounded-2xl p-5">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="font-semibold text-white text-sm">Recent Signups</h2>
+      <a href="{{ url_for('admin.admin_users') }}" class="text-xs brand-text hover:underline">View all →</a>
+    </div>
+    <div class="flex flex-col gap-3">
+      {% for user in recent_users %}
+      <a href="{{ url_for('admin.admin_user_detail', uid=user.id) }}" class="flex items-center gap-3 group">
+        <div class="w-8 h-8 brand-bg rounded-full flex items-center justify-center text-brand font-bold text-xs flex-shrink-0">
+          {{ user.first_name[0] }}{{ user.last_name[0] }}
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-medium text-white truncate group-hover:brand-text transition-colors">{{ user.full_name }}</div>
+          <div class="text-xs text-gray-500">{{ user.joined_at.strftime('%d %b %Y') }}</div>
+        </div>
+        <span class="text-xs px-2 py-0.5 rounded-full badge-{{ user.membership }}">{{ user.membership }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Recent Bookings -->
+  <div class="bg-dark-800 border border-gray-800 rounded-2xl p-5">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="font-semibold text-white text-sm">Recent Bookings</h2>
+      <a href="{{ url_for('admin.admin_memberships') }}" class="text-xs brand-text hover:underline">View all →</a>
+    </div>
+    <div class="flex flex-col gap-3">
+      {% for booking in recent_bookings %}
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 bg-dark-600 rounded-full flex items-center justify-center text-sm flex-shrink-0">🏷️</div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-medium text-white truncate">{{ booking.user.full_name }}</div>
+          <div class="text-xs text-gray-500">{{ booking.booked_at.strftime('%d %b %Y') }}</div>
+        </div>
+        <div class="flex flex-col items-end gap-1">
+          <span class="text-xs px-2 py-0.5 rounded-full badge-{{ booking.plan }}">{{ booking.plan }}</span>
+          <span class="text-xs px-2 py-0.5 rounded-full badge-{{ booking.status }}">{{ booking.status }}</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Recent Messages -->
+  <div class="bg-dark-800 border border-gray-800 rounded-2xl p-5">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="font-semibold text-white text-sm">Recent Messages</h2>
+      <a href="{{ url_for('admin.admin_messages') }}" class="text-xs brand-text hover:underline">View all →</a>
+    </div>
+    <div class="flex flex-col gap-3">
+      {% for msg in recent_messages %}
+      <div class="bg-dark-700 rounded-xl p-3">
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-sm font-semibold text-white">{{ msg.name }}</span>
+          <span class="text-xs text-gray-600">{{ msg.sent_at.strftime('%d %b') }}</span>
+        </div>
+        {% if msg.subject %}
+        <div class="text-xs text-brand mb-1">{{ msg.subject }}</div>
+        {% endif %}
+        <div class="text-xs text-gray-400 line-clamp-2">{{ msg.message }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/pages/admin.js') }}" defer></script>
+{% endblock %}
