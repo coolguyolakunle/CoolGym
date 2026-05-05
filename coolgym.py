@@ -8,8 +8,10 @@ app = create_app()
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
 
-with app.app_context():
+if not ADMIN_EMAIL or not ADMIN_PASSWORD:
+    raise ValueError("Missing admin credentials in environment variables")
 
+with app.app_context():
     if not User.query.filter_by(email=ADMIN_EMAIL).first():
         admin = User(
             first_name='Admin',
@@ -23,4 +25,4 @@ with app.app_context():
         db.session.commit()
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
