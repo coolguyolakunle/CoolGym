@@ -1,5 +1,5 @@
 /**
- * Flexova — pages/admin.js
+ * CoolGym — pages/admin.js
  * Admin dashboard: Chart.js charts loaded from API
  */
 

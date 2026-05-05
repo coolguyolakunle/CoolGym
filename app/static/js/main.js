@@ -1,14 +1,12 @@
 /**
- * Flexova — main.js
+ * CoolGym — main.js
  * Global JavaScript: transitions, cursor, navbar, reveals, ripple, magnetic, forms
  */
 
 (function () {
   'use strict';
 
-  /* ─────────────────────────────────────────────
-     1. PAGE TRANSITION
-  ───────────────────────────────────────────── */
+// 1. PAGE TRANSITION
   const overlay = document.getElementById('page-transition');
 
   window.addEventListener('load', () => {
@@ -39,9 +37,7 @@
   });
 
 
-  /* ─────────────────────────────────────────────
-     2. NAVBAR — scroll shrink, hide/show, blur
-  ───────────────────────────────────────────── */
+  // 2. NAVBAR — scroll shrink, hide/show, blur
   const navbar   = document.getElementById('navbar');
   let lastScroll = 0;
 
@@ -81,9 +77,7 @@
   }, { passive: true });
 
 
-  /* ─────────────────────────────────────────────
-     3. MOBILE MENU — animated hamburger
-  ───────────────────────────────────────────── */
+  // 3. MOBILE MENU — animated hamburger
   const menuBtn    = document.getElementById('menu-btn');
   const mobileMenu = document.getElementById('mobile-menu');
   const lines      = menuBtn ? menuBtn.querySelectorAll('.hamburger-line') : [];
@@ -102,9 +96,9 @@
   }
 
 
-  /* ─────────────────────────────────────────────
-     4. CUSTOM CURSOR (desktop only)
-  ───────────────────────────────────────────── */
+  
+  //  4. CUSTOM CURSOR (desktop only)
+  
   const dot  = document.getElementById('cursor-dot');
   const ring = document.getElementById('cursor-ring');
 
@@ -142,9 +136,7 @@
   }
 
 
-  /* ─────────────────────────────────────────────
-     5. SCROLL REVEAL
-  ───────────────────────────────────────────── */
+  //  5. SCROLL REVEAL + STAGGER
   const revealObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -171,9 +163,7 @@
   document.querySelectorAll('.stagger-children').forEach(el => staggerObserver.observe(el));
 
 
-  /* ─────────────────────────────────────────────
-     6. COUNT-UP NUMBERS
-  ───────────────────────────────────────────── */
+  // 6. COUNT-UP NUMBERS
   function countUp(el, target, suffix, duration) {
     const isFloat = target % 1 !== 0;
     const start   = performance.now();

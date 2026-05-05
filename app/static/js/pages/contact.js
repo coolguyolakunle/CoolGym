@@ -1,5 +1,5 @@
 /**
- * Flexova — pages/contact.js
+ * CoolGym — pages/contact.js
  * Contact page: live form validation, character counter, field animations
  */
 

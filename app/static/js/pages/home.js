@@ -1,5 +1,5 @@
 /**
- * Flexova — pages/home.js
+ * CoolGym — pages/home.js
  * Homepage-specific JS: typewriter hero, scroll hint, stagger trigger
  */
 

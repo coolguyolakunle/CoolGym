@@ -1,6 +1,5 @@
 /**
- * Flexova — pages/membership.js
- * Membership page: animated FAQ accordion
+ * CoolGym — pages/membership.js
  */
 
 (function () {

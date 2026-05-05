@@ -1,8 +1,4 @@
-/* ═══════════════════════════════════════════
-   Flexova — main.css
-   All custom animations, component styles,
-   and utilities used across the site.
-═══════════════════════════════════════════ */
+/*  CoolGym — main.css */
 
 /* ── Base ── */
 * { font-family: 'DM Sans', sans-serif; }
@@ -173,9 +169,8 @@ input:focus, textarea:focus, select:focus {
   transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
 }
 
-/* ════════════════════════════════════════════
-   KEYFRAME ANIMATIONS
-════════════════════════════════════════════ */
+
+/* KEYFRAME ANIMATIONS */
 @keyframes flx-ripple {
   to { transform: scale(4); opacity: 0; }
 }

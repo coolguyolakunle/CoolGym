@@ -1,5 +1,5 @@
 /**
- * Flexova — pages/classes.js
+ * CoolGym — pages/classes.js
  * Classes page: filter tabs, card hover, schedule highlight
  */
 

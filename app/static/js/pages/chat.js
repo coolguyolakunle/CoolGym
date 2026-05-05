@@ -1,5 +1,5 @@
 /**
- * Flexova — pages/chat.js
+ * CoolGym — pages/chat.js
  * Real-time chat via polling (3s interval)
  * Works on both messages/thread.html and coach/client_detail.html (chat tab)
  */
