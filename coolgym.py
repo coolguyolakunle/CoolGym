@@ -5,24 +5,26 @@ from app.models import User
 
 app = create_app()
 
-ADMIN_EMAIL = os.getenv("ADMIN_EMAIL")
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
+def create_admin_user():
+    ADMIN_EMAIL = os.getenv("ADMIN_EMAIL")
+    ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
 
-if not ADMIN_EMAIL or not ADMIN_PASSWORD:
-    raise ValueError("Missing admin credentials in environment variables")
+    if not ADMIN_EMAIL or not ADMIN_PASSWORD:
+        raise ValueError("Missing admin credentials in environment variables")
 
-with app.app_context():
-    if not User.query.filter_by(email=ADMIN_EMAIL).first():
-        admin = User(
-            first_name='Admin',
-            last_name='Coolgym',
-            email=ADMIN_EMAIL,
-            role='admin'
-        )
-        admin.set_password(ADMIN_PASSWORD)
+    with app.app_context():
+        if not User.query.filter_by(email=ADMIN_EMAIL).first():
+            admin = User(
+                first_name='Admin',
+                last_name='Coolgym',
+                email=ADMIN_EMAIL,
+                role='admin'
+            )
+            admin.set_password(ADMIN_PASSWORD)
 
-        db.session.add(admin)
-        db.session.commit()
+            db.session.add(admin)
+            db.session.commit()
 
 if __name__ == '__main__':
-    app.run()
+    create_admin_user()
+    app.run(debug=True)

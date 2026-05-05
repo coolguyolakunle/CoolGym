@@ -17,7 +17,11 @@ def create_app():
     if not app.config['SECRET_KEY']:
         raise ValueError("SECRET_KEY is missing in .env")
 
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///coolgym.db'
+    database_url = os.getenv('DATABASE_URL', 'sqlite:///coolgym.db')
+    if database_url.startswith('postgres://'):
+        database_url = database_url.replace('postgres://', 'postgresql://', 1)
+
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['MAX_CONTENT_LENGTH'] = 8 * 1024 * 1024
 
@@ -47,5 +51,30 @@ def create_app():
     app.register_blueprint(auth)
     app.register_blueprint(admin, url_prefix='/admin')
     app.register_blueprint(coach, url_prefix='/coach')
+
+    @app.cli.command('seed-admin')
+    def seed_admin():
+        admin_email = os.getenv("ADMIN_EMAIL")
+        admin_password = os.getenv("ADMIN_PASSWORD")
+
+        if not admin_email or not admin_password:
+            raise ValueError("Missing admin credentials in environment variables")
+
+        from .models import User
+
+        if not User.query.filter_by(email=admin_email).first():
+            admin_user = User(
+                first_name='Admin',
+                last_name='Coolgym',
+                email=admin_email,
+                role='admin'
+            )
+            admin_user.set_password(admin_password)
+
+            db.session.add(admin_user)
+            db.session.commit()
+            print("Admin user created")
+        else:
+            print("Admin user already exists")
 
     return app
