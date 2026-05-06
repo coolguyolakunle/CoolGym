@@ -15,9 +15,14 @@
     <!-- Profile Summary -->
     <div class="bg-dark-800 border border-gray-800 rounded-2xl p-6 h-fit">
       <div class="flex flex-col items-center text-center mb-5">
-        <div class="w-16 h-16 brand-bg rounded-full flex items-center justify-center text-black font-bold text-xl mb-3">
-          {{ user.first_name[0] }}{{ user.last_name[0] }}
-        </div>
+        {% if user.image_file and user.image_file != 'default.jpg' %}
+          <img src="{{ user.image_file }}" alt="{{ user.full_name }}"
+            class="w-16 h-16 rounded-full object-cover mb-3">
+        {% else %}
+          <div class="w-16 h-16 brand-bg rounded-full flex items-center justify-center text-brand font-bold text-xl mb-3">
+            {{ user.first_name[0] }}{{ user.last_name[0] }}
+          </div>
+        {% endif %}
         <h2 class="font-semibold text-white">{{ user.full_name }}</h2>
         <p class="text-xs text-gray-500 mt-0.5">{{ user.email }}</p>
         <div class="mt-2 flex gap-2 flex-wrap justify-center">
@@ -26,7 +31,7 @@
         </div>
       </div>
       <div class="flex flex-col gap-2 text-xs text-gray-400">
-        <div class="flex justify-between"><span>Member ID</span><span class="text-white font-mono">#FLX{{ '%05d'|format(user.id) }}</span></div>
+        <div class="flex justify-between"><span>Member ID</span><span class="text-white font-mono">#CLG{{ '%05d'|format(user.id) }}</span></div>
         <div class="flex justify-between"><span>Joined</span><span class="text-white">{{ user.joined_at.strftime('%d %b %Y') }}</span></div>
         <div class="flex justify-between"><span>Total Bookings</span><span class="text-white">{{ bookings|length }}</span></div>
       </div>
@@ -90,7 +95,7 @@
             class="w-full bg-dark-700 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-brand transition-colors">
         </div>
         <div class="flex gap-3 pt-2">
-          <button type="submit" class="brand-bg text-black font-bold px-6 py-2.5 rounded-xl text-sm hover:opacity-90 transition-opacity">Save Changes</button>
+          <button type="submit" class="brand-bg text-brand font-bold px-6 py-2.5 rounded-xl text-sm hover:opacity-90 transition-opacity">Save Changes</button>
           <a href="{{ url_for('admin.admin_users') }}" class="border border-gray-700 text-gray-300 font-semibold px-6 py-2.5 rounded-xl text-sm hover:border-gray-500 transition-colors">Cancel</a>
         </div>
       </form>

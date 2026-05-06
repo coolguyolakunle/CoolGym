@@ -61,7 +61,9 @@
         navbar.style.boxShadow      = 'none';
       }
 
-      if (y > lastScroll + 8 && y > 200) {
+      if (menuOpen) {
+        navbar.style.transform = 'translateY(0)';
+      } else if (y > lastScroll + 8 && y > 200) {
         navbar.style.transform = 'translateY(-100%)';
       } else if (y < lastScroll - 4) {
         navbar.style.transform = 'translateY(0)';
@@ -83,17 +85,43 @@
   const lines      = menuBtn ? menuBtn.querySelectorAll('.hamburger-line') : [];
   let   menuOpen   = false;
 
+  function setMenuOpen(open) {
+    menuOpen = open;
+    if (mobileMenu) mobileMenu.classList.toggle('open', menuOpen);
+    if (menuBtn) {
+      menuBtn.setAttribute('aria-expanded', String(menuOpen));
+      document.body.classList.toggle('mobile-menu-open', menuOpen);
+    }
+    if (navbar) {
+      navbar.style.transform = 'translateY(0)';
+      navbar.style.background = menuOpen ? 'rgba(10,10,10,0.98)' : navbar.style.background;
+      navbar.style.backdropFilter = menuOpen ? 'blur(16px)' : navbar.style.backdropFilter;
+      navbar.style.borderBottom = menuOpen ? '1px solid rgba(255,255,255,0.08)' : navbar.style.borderBottom;
+    }
+    if (lines.length === 3) {
+      lines[0].style.transform = menuOpen ? 'translateY(8px) rotate(45deg)'  : '';
+      lines[1].style.opacity   = menuOpen ? '0' : '1';
+      lines[2].style.transform = menuOpen ? 'translateY(-8px) rotate(-45deg)' : '';
+    }
+  }
+
   if (menuBtn) {
+    menuBtn.setAttribute('aria-expanded', 'false');
+    menuBtn.setAttribute('aria-controls', 'mobile-menu');
     menuBtn.addEventListener('click', () => {
-      menuOpen = !menuOpen;
-      if (mobileMenu) mobileMenu.classList.toggle('open', menuOpen);
-      if (lines.length === 3) {
-        lines[0].style.transform = menuOpen ? 'translateY(8px) rotate(45deg)'  : '';
-        lines[1].style.opacity   = menuOpen ? '0' : '1';
-        lines[2].style.transform = menuOpen ? 'translateY(-8px) rotate(-45deg)' : '';
-      }
+      setMenuOpen(!menuOpen);
     });
   }
+
+  if (mobileMenu) {
+    mobileMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => setMenuOpen(false));
+    });
+  }
+
+  window.addEventListener('resize', () => {
+    if (window.innerWidth >= 768 && menuOpen) setMenuOpen(false);
+  });
 
 
   

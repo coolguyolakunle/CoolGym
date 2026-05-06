@@ -49,9 +49,14 @@
         <tr class="hover:bg-dark-700 transition-colors">
           <td class="px-5 py-3.5">
             <div class="flex items-center gap-3">
-              <div class="w-8 h-8 brand-bg rounded-full flex items-center justify-center text-black font-bold text-xs flex-shrink-0">
-                {{ user.first_name[0] }}{{ user.last_name[0] }}
-              </div>
+              {% if user.image_file and user.image_file != 'default.jpg' %}
+                <img src="{{ user.image_file }}" alt="{{ user.full_name }}"
+                  class="w-8 h-8 rounded-full object-cover flex-shrink-0">
+              {% else %}
+                <div class="w-8 h-8 brand-bg rounded-full flex items-center justify-center text-brand font-bold text-xs flex-shrink-0">
+                  {{ user.first_name[0] }}{{ user.last_name[0] }}
+                </div>
+              {% endif %}
               <span class="font-medium text-white">{{ user.full_name }}</span>
             </div>
           </td>

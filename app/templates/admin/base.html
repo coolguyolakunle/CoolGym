@@ -24,9 +24,11 @@
   </script>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
-    * { font-family: 'DM Sans', sans-serif; }
+    * { box-sizing: border-box; font-family: 'DM Sans', sans-serif; }
     .font-display { font-family: 'Bebas Neue', sans-serif; }
-    html, body { background: #0a0a0a; }
+    html, body { background: #0a0a0a; overflow-x: hidden; }
+    img, video, canvas, svg { max-width: 100%; }
+    a, p, span, div, h1, h2, h3, h4, h5, h6, button, input, textarea, select { overflow-wrap: anywhere; }
     .sidebar-link { display:flex; align-items:center; gap:.75rem; padding:.6rem 1rem; border-radius:.75rem; font-size:.875rem; font-weight:500; color:#9ca3af; transition:all .2s; }
     .sidebar-link:hover, .sidebar-link.active { background:#1a1a1a; color:#E8FF00; }
     .sidebar-link.active { border-left: 3px solid #E8FF00; padding-left: calc(1rem - 3px); }
@@ -43,6 +45,15 @@
     .flash-info    { background:#001a2e; border:1px solid #44aaff; color:#44aaff; }
     ::-webkit-scrollbar { width:6px; } ::-webkit-scrollbar-track { background:#111; } ::-webkit-scrollbar-thumb { background:#333; border-radius:3px; }
     input, select, textarea { color-scheme: dark; }
+    @media (max-width: 767px) {
+      main { padding: 1rem !important; }
+      header { padding-left: 1rem !important; padding-right: 1rem !important; }
+      header h1 { font-size: 1.125rem !important; line-height: 1.1; }
+      table { min-width: 640px; }
+      .grid > *, .flex > * { min-width: 0; }
+      .grid.grid-cols-2 { grid-template-columns: minmax(0, 1fr); }
+      .font-display { line-height: 1; letter-spacing: 0; }
+    }
   </style>
   {% block extra_head %}{% endblock %}
 </head>
@@ -101,14 +112,14 @@
   </aside>
 
   <!-- Overlay for mobile -->
-  <div id="overlay" class="fixed inset-0 bg-black/60 z-30 hidden md:hidden" onclick="toggleSidebar()"></div>
+  <div id="overlay" class="fixed inset-0 bg-black/60 z-30 hidden md:hidden" onclick="toggleSidebar(false)"></div>
 
   <!-- ── MAIN ── -->
   <div class="flex-1 md:ml-60 flex flex-col min-h-screen">
     <!-- Top bar -->
     <header class="sticky top-0 z-20 bg-dark-800 border-b border-gray-800 px-6 py-3.5 flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <button onclick="toggleSidebar()" class="md:hidden text-gray-400 hover:text-white">
+        <button onclick="toggleSidebar()" class="md:hidden text-gray-400 hover:text-white" aria-label="Open menu">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
         <h1 class="font-display text-xl text-white tracking-wide">{% block page_title %}Dashboard{% endblock %}</h1>
@@ -139,12 +150,20 @@
   </div>
 
   <script>
-    function toggleSidebar() {
+    function toggleSidebar(forceOpen) {
       const s = document.getElementById('sidebar');
       const o = document.getElementById('overlay');
-      s.classList.toggle('-translate-x-full');
-      o.classList.toggle('hidden');
+      const shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : s.classList.contains('-translate-x-full');
+      s.classList.toggle('-translate-x-full', !shouldOpen);
+      o.classList.toggle('hidden', !shouldOpen);
+      document.body.style.overflow = shouldOpen ? 'hidden' : '';
     }
+
+    document.querySelectorAll('#sidebar a').forEach((link) => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth < 768) toggleSidebar(false);
+      });
+    });
   </script>
   {% block extra_scripts %}{% endblock %}
 </body>

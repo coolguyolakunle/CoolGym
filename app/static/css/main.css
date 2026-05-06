@@ -1,12 +1,17 @@
 /*  CoolGym — main.css */
 
 /* ── Base ── */
-* { font-family: 'DM Sans', sans-serif; }
+* { box-sizing: border-box; font-family: 'DM Sans', sans-serif; }
 .font-display { font-family: 'Bebas Neue', sans-serif; }
 .brand-text   { color: #E8FF00; }
 .brand-bg     { background-color: #E8FF00; }
 .brand-border { border-color: #E8FF00; }
-html          { background: #0a0a0a; }
+html          { background: #0a0a0a; overflow-x: hidden; }
+body          { overflow-x: hidden; }
+img, video, canvas, svg { max-width: 100%; }
+a, p, span, div, h1, h2, h3, h4, h5, h6, button, input, textarea, select {
+  overflow-wrap: anywhere;
+}
 
 /* ── Page transition overlay ── */
 #page-transition {
@@ -64,6 +69,7 @@ body.cursor-hover #cursor-ring { width: 52px; height: 52px; border-color: rgba(2
 /* ── Mobile menu slide ── */
 #mobile-menu {
   max-height: 0; overflow: hidden; opacity: 0;
+  background: rgba(10,10,10,0.98);
   transition: max-height 0.4s cubic-bezier(0.16,1,0.3,1), opacity 0.3s ease;
 }
 #mobile-menu.open { max-height: 500px; opacity: 1; }
@@ -224,7 +230,92 @@ input:focus, textarea:focus, select:focus {
   background: #111 !important;
 }
 
-img:hover {
-  transform: scale(1.05);
-  transition: 0.2s;
+.card-hover img {
+  transition: transform 0.25s ease;
+}
+
+.card-hover:hover img {
+  transform: scale(1.03);
+}
+
+@media (max-width: 767px) {
+  #navbar {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  body.mobile-menu-open {
+    overflow: hidden;
+  }
+
+  #mobile-menu {
+    margin-left: -1rem;
+    margin-right: -1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    max-height: calc(100vh - 5rem);
+    overflow-y: auto;
+  }
+
+  .font-display {
+    letter-spacing: 0;
+    line-height: 0.96;
+  }
+
+  h1.font-display,
+  .font-display.text-6xl,
+  .font-display.text-7xl,
+  .font-display.text-8xl,
+  .font-display.text-9xl {
+    font-size: clamp(2.75rem, 14vw, 4.5rem) !important;
+    line-height: 0.95 !important;
+  }
+
+  h2.font-display,
+  .font-display.text-5xl {
+    font-size: clamp(2.25rem, 11vw, 3.5rem) !important;
+    line-height: 1 !important;
+  }
+
+  .text-6xl {
+    font-size: clamp(2.75rem, 13vw, 3.75rem) !important;
+    line-height: 1 !important;
+  }
+
+  .grid.grid-cols-2:not(.md\:grid-cols-2):not(.md\:grid-cols-3):not(.md\:grid-cols-4) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .grid > *,
+  .flex > * {
+    min-width: 0;
+  }
+
+  .rounded-3xl {
+    border-radius: 1rem;
+  }
+
+  .p-8 {
+    padding: 1.25rem;
+  }
+
+  .p-12 {
+    padding: 1.5rem;
+  }
+
+  .px-8 {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+
+  table {
+    min-width: 640px;
+  }
+
+  #toast-container {
+    left: 1rem;
+    right: 1rem;
+    width: auto;
+    max-width: none;
+  }
 }

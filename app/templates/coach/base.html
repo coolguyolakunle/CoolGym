@@ -11,12 +11,25 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}"/>
   {% block extra_head %}{% endblock %}
   <style>
+    *{box-sizing:border-box}
+    html,body{overflow-x:hidden}
+    img,video,canvas,svg{max-width:100%}
+    a,p,span,div,h1,h2,h3,h4,h5,h6,button,input,textarea,select{overflow-wrap:anywhere}
     .sidebar-link{display:flex;align-items:center;gap:.75rem;padding:.6rem 1rem;border-radius:.75rem;font-size:.875rem;font-weight:500;color:#9ca3af;transition:all .2s}
     .sidebar-link:hover,.sidebar-link.active{background:#1a1a1a;color:#E8FF00}
     .sidebar-link.active{border-left:3px solid #E8FF00;padding-left:calc(1rem - 3px)}
     .badge-none{background:#1a1a1a;color:#6b7280}.badge-basic{background:#1a1a00;color:#E8FF00}
     .badge-elite{background:#1a0a2e;color:#a78bfa}.badge-pro{background:#1a1500;color:#fbbf24}
     ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#111}::-webkit-scrollbar-thumb{background:#333;border-radius:3px}
+    @media (max-width:767px){
+      main{padding:1rem!important}
+      header{padding-left:1rem!important;padding-right:1rem!important}
+      header h1{font-size:1.125rem!important;line-height:1.1}
+      table{min-width:640px}
+      .grid>*,.flex>*{min-width:0}
+      .grid.grid-cols-2,.grid.grid-cols-3{grid-template-columns:minmax(0,1fr)}
+      .font-display{line-height:1;letter-spacing:0}
+    }
   </style>
 </head>
 <body class="bg-dark text-white min-h-screen flex">
@@ -69,13 +82,13 @@
     </div>
   </aside>
 
-  <div id="overlay" class="fixed inset-0 bg-black/60 z-30 hidden md:hidden" onclick="document.getElementById('sidebar').classList.toggle('-translate-x-full');this.classList.add('hidden')"></div>
+  <div id="overlay" class="fixed inset-0 bg-black/60 z-30 hidden md:hidden" onclick="toggleCoachSidebar(false)"></div>
 
   <!-- Main -->
   <div class="flex-1 md:ml-60 flex flex-col min-h-screen">
     <header class="sticky top-0 z-20 bg-dark-800 border-b border-gray-800 px-6 py-3.5 flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <button onclick="document.getElementById('sidebar').classList.toggle('-translate-x-full');document.getElementById('overlay').classList.toggle('hidden')" class="md:hidden text-gray-400">
+        <button onclick="toggleCoachSidebar()" class="md:hidden text-gray-400" aria-label="Open menu">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
         <h1 class="font-display text-xl text-white tracking-wide">{% block page_title %}Dashboard{% endblock %}</h1>
@@ -105,6 +118,22 @@
   </div>
 
   <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+  <script>
+    function toggleCoachSidebar(forceOpen) {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('overlay');
+      const shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : sidebar.classList.contains('-translate-x-full');
+      sidebar.classList.toggle('-translate-x-full', !shouldOpen);
+      overlay.classList.toggle('hidden', !shouldOpen);
+      document.body.style.overflow = shouldOpen ? 'hidden' : '';
+    }
+
+    document.querySelectorAll('#sidebar a').forEach((link) => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth < 768) toggleCoachSidebar(false);
+      });
+    });
+  </script>
   {% block extra_scripts %}{% endblock %}
 </body>
 </html>
