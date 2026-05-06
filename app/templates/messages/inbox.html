@@ -11,8 +11,8 @@
   {% if current_user.role == 'member' %}
     {% set assignment = current_user.coach_assignments|selectattr('is_active')|list|first %}
     {% if assignment %}
-    <div class="bg-dark-700 border border-brand rounded-2xl p-4 mb-6 flex items-center justify-between">
-      <div class="flex items-center gap-3">
+    <div class="bg-dark-700 border border-brand rounded-2xl p-4 mb-6 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
         {% if assignment.coach.image_file and assignment.coach.image_file != 'default.jpg' %}
           <img src="{{ assignment.coach.image_file }}" alt="{{ assignment.coach.full_name }}"
               class="w-12 h-12 rounded-full object-cover flex-shrink-0">
@@ -21,13 +21,13 @@
             {{ assignment.coach.first_name[0] }}{{ assignment.coach.last_name[0] }}
           </div>
         {% endif %} 
-        <div>
+        <div class="min-w-0">
           <div class="text-sm font-semibold text-white">{{ assignment.coach.full_name }}</div>
           <div class="text-xs text-gray-400">Your assigned coach · {{ assignment.coach.specialty or 'Fitness Coach' }}</div>
         </div>
       </div>
       <a href="{{ url_for('main.messages_thread', partner_id=assignment.coach_id) }}"
-         class="brand-bg text-black font-bold px-4 py-2 rounded-xl text-xs hover:opacity-90 transition-opacity">
+         class="inline-flex items-center justify-center flex-shrink-0 whitespace-nowrap brand-bg text-black font-bold px-4 py-2 rounded-xl text-xs hover:opacity-90 transition-opacity">
         Chat →
       </a>
     </div>

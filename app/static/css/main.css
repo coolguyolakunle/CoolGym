@@ -69,10 +69,12 @@ body.cursor-hover #cursor-ring { width: 52px; height: 52px; border-color: rgba(2
 /* ── Mobile menu slide ── */
 #mobile-menu {
   max-height: 0; overflow: hidden; opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
   background: rgba(10,10,10,0.98);
-  transition: max-height 0.4s cubic-bezier(0.16,1,0.3,1), opacity 0.3s ease;
+  transition: max-height 0.4s cubic-bezier(0.16,1,0.3,1), opacity 0.3s ease, visibility 0.3s ease;
 }
-#mobile-menu.open { max-height: 500px; opacity: 1; }
+#mobile-menu.open { max-height: 500px; opacity: 1; pointer-events: auto; visibility: visible; }
 
 /* ── Scroll reveal ── */
 .reveal {
@@ -253,8 +255,11 @@ input:focus, textarea:focus, select:focus {
     margin-right: -1rem;
     padding-left: 1rem;
     padding-right: 1rem;
-    max-height: calc(100vh - 5rem);
     overflow-y: auto;
+  }
+
+  #mobile-menu.open {
+    max-height: calc(100vh - 5rem);
   }
 
   .font-display {

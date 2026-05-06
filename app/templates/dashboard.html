@@ -9,8 +9,8 @@
       <h1 class="font-display text-4xl md:text-5xl text-white mt-1">WELCOME, {{ current_user.first_name.upper() }}!</h1>
       <p class="text-gray-400 text-sm mt-1">Member since {{ current_user.joined_at.strftime('%B %Y') }}</p>
     </div>
-    <div class="flex gap-3">
-      <a href="{{ url_for('main.messages_inbox') }}" class="relative border border-gray-700 text-gray-300 font-semibold px-4 py-2.5 rounded-full text-sm hover:border-brand hover:text-brand transition-colors">
+    <div class="relative z-10 flex flex-wrap gap-3">
+      <a href="{{ url_for('main.messages_inbox') }}" class="relative inline-flex items-center justify-center border border-gray-700 text-gray-300 font-semibold px-4 py-2.5 rounded-full text-sm hover:border-brand hover:text-brand transition-colors">
         💬 Messages
         {% if unread_count > 0 %}<span class="absolute -top-1 -right-1 brand-bg text-black text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">{{ unread_count }}</span>{% endif %}
       </a>
@@ -109,13 +109,13 @@
       <!-- Active Workout Plan -->
       {% if active_plan %}
       <div class="bg-dark-700 border border-gray-800 rounded-2xl p-6">
-        <div class="flex items-start justify-between mb-4">
-          <div>
+        <div class="flex items-start justify-between gap-3 mb-4">
+          <div class="min-w-0">
             <span class="text-xs brand-text font-semibold">Active Plan</span>
             <h2 class="font-display text-2xl text-white mt-0.5">{{ active_plan.title }}</h2>
             <p class="text-xs text-gray-500">{{ active_plan.weeks }} weeks · Created by {{ active_plan.coach.full_name }}</p>
           </div>
-          <span class="bg-green-900 text-green-400 text-xs font-bold px-2.5 py-1 rounded-full">● ACTIVE</span>
+          <span class="inline-flex items-center gap-1 flex-shrink-0 whitespace-nowrap bg-green-900 text-green-400 text-xs font-bold px-2.5 py-1 rounded-full">● ACTIVE</span>
         </div>
         {% if active_plan.description %}
         <p class="text-sm text-gray-400 mb-4 leading-relaxed">{{ active_plan.description }}</p>
@@ -204,7 +204,7 @@
         {% set info = {'basic':{'price':'$29.49','color':'brand-text'},'elite':{'price':'$149.99','color':'text-purple-400'},'pro':{'price':'$249.99','color':'text-yellow-400'}}[current_user.membership] %}
         <div class="flex items-center justify-between mb-3">
           <div class="font-display text-3xl {{ info.color }}">{{ current_user.membership.upper() }}</div>
-          <span class="bg-green-900 text-green-400 text-xs font-bold px-2.5 py-1 rounded-full">● ACTIVE</span>
+          <span class="inline-flex items-center gap-1 flex-shrink-0 whitespace-nowrap bg-green-900 text-green-400 text-xs font-bold px-2.5 py-1 rounded-full">● ACTIVE</span>
         </div>
         <div class="font-display text-2xl text-white mb-3">{{ info.price }}<span class="text-sm text-gray-400 font-body font-normal">/mo</span></div>
         <form method="POST" action="{{ url_for('main.cancel_membership') }}" onsubmit="return confirm('Cancel membership?')">
