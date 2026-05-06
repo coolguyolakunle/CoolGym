@@ -36,7 +36,7 @@
       <p class="text-xs text-gray-500 mt-0.5">{{ cc.client.email }}</p>
       <span class="inline-block mt-2 badge-{{ cc.client.membership }} px-2.5 py-1 rounded-full text-xs font-semibold">{{ cc.client.membership.capitalize() }}</span>
       <div class="mt-4 flex flex-col gap-2 text-xs text-gray-400">
-        <div class="flex justify-between"><span>Member ID</span><span class="text-white font-mono">#FLX{{ '%05d'|format(cc.client.id) }}</span></div>
+        <div class="flex justify-between"><span>Member ID</span><span class="text-white font-mono">#CLG{{ '%05d'|format(cc.client.id) }}</span></div>
         <div class="flex justify-between"><span>Joined</span><span class="text-white">{{ cc.client.joined_at.strftime('%d %b %Y') }}</span></div>
         <div class="flex justify-between"><span>Assigned</span><span class="text-white">{{ cc.assigned_at.strftime('%d %b %Y') }}</span></div>
       </div>
