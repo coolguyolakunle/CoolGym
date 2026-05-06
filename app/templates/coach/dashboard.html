@@ -33,9 +33,14 @@
       {% for cc in clients[:6] %}
       <a href="{{ url_for('coach.coach_client_detail', client_id=cc.client_id) }}"
          class="flex items-center gap-3 bg-dark-700 rounded-xl p-3 hover:border-brand border border-gray-800 transition-colors group">
-        <div class="w-9 h-9 brand-bg rounded-full flex items-center justify-center text-black font-bold text-sm flex-shrink-0">
-          {{ cc.client.first_name[0] }}{{ cc.client.last_name[0] }}
-        </div>
+        {% if cc.client.image_file and cc.client.image_file != 'default.jpg' %}
+          <img src="{{ cc.client.image_file }}" alt="{{ cc.client.full_name }}"
+            class="w-9 h-9 rounded-full object-cover flex-shrink-0">
+        {% else %}
+          <div class="w-9 h-9 brand-bg rounded-full flex items-center justify-center text-black font-bold text-sm flex-shrink-0">
+            {{ cc.client.first_name[0] }}{{ cc.client.last_name[0] }}
+          </div>
+        {% endif %}
         <div class="flex-1 min-w-0">
           <div class="text-sm font-semibold text-white group-hover:text-brand transition-colors truncate">{{ cc.client.full_name }}</div>
           <div class="text-xs text-gray-500">{{ cc.client.email }}</div>

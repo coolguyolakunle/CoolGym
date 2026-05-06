@@ -9,8 +9,8 @@
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
     </a>
     <div class="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-gray-800 flex-shrink-0">
-      {% if partner.image_file %}
-        <img src="{{ my_coach.image_file }}" alt="{{ my_coach.full_name }}"
+      {% if partner.image_file and partner.image_file != 'default.jpg' %}
+        <img src="{{ partner.image_file }}" alt="{{ partner.full_name }}"
             class="w-full h-full object-cover">
       {% else %}
         <div class="w-full h-full brand-bg flex items-center justify-center text-black font-bold">
@@ -53,11 +53,11 @@
              data-msg-id="{{ msg.id }}">
           {% if msg.sender_id != current_user.id %}
           <div class="w-7 h-7 brand-bg rounded-full flex items-center justify-center text-black font-bold text-xs flex-shrink-0 mr-2 mt-1">
-            {% if partner.image_file %}
-              <img src="{{ my_coach.image_file }}" alt="{{ my_coach.full_name }}"
-                  class="w-7 h-7 rounded-full object-cover mr-2 mt-1">
+            {% if partner.image_file and partner.image_file != 'default.jpg' %}
+              <img src="{{ partner.image_file }}" alt="{{ partner.full_name }}"
+                  class="w-7 h-7 rounded-full object-cover">
             {% else %}
-              <div class="w-7 h-7 brand-bg rounded-full flex items-center justify-center text-black font-bold text-xs mr-2 mt-1">
+              <div class="w-7 h-7 brand-bg rounded-full flex items-center justify-center text-black font-bold text-xs">
                 {{ partner.first_name[0] }}
               </div>
             {% endif %}
@@ -70,7 +70,7 @@
               {{ msg.body }}
             </div>
             <div class="text-xs text-gray-600 mt-1 {% if msg.sender_id == current_user.id %}text-right{% endif %}">
-              {{ msg.sent_at.strftime('%H:%M') }}
+              <span class="js-local-time" data-utc="{{ msg.sent_at.isoformat() }}Z">{{ msg.sent_at.strftime('%H:%M') }}</span>
               {% if msg.sender_id == current_user.id and msg.is_read %}
               <span class="text-brand ml-1">✓✓</span>
               {% endif %}
@@ -129,6 +129,8 @@
   const PARTNER_ID = '{{ partner.id }}';
   const CURRENT_ID = '{{ current_user.id }}';
   const POLL_URL   = "{{ url_for('main.messages_poll', partner_id=partner.id) }}";
+  const PARTNER_INITIAL = '{{ partner.first_name[0] }}';
+  const PARTNER_IMAGE_URL = '{{ partner.image_file if partner.image_file and partner.image_file != "default.jpg" else "" }}';
 </script>
 <script src="{{ url_for('static', filename='js/pages/chat.js') }}" defer></script>
 {% endblock %}

@@ -17,17 +17,11 @@
   // Latest message timestamp for polling
   let lastTimestamp = new Date().toISOString();
 
-  // Find last existing message timestamp from DOM
-  const existingMsgs = chatBox.querySelectorAll('[data-msg-id]');
-  if (existingMsgs.length > 0) {
-    // Use current time minus 1s so we don't re-fetch already-rendered messages
-    lastTimestamp = new Date(Date.now() - 1000).toISOString();
-  }
-
   /* ── Scroll to bottom ── */
   function scrollBottom(smooth) {
     chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: smooth ? 'smooth' : 'instant' });
   }
+  localizeTimes();
   scrollBottom(false);
 
   /* ── Render a single message bubble ── */
@@ -38,11 +32,14 @@
     wrap.className = `flex ${isMine ? 'justify-end' : 'justify-start'}`;
 
     const avatarLetter = isMine ? '' : (window.PARTNER_INITIAL || '?');
+    const avatarImage = !isMine && window.PARTNER_IMAGE_URL
+      ? `<img src="${escapeAttribute(window.PARTNER_IMAGE_URL)}" alt="" class="w-7 h-7 rounded-full object-cover">`
+      : avatarLetter;
 
     wrap.innerHTML = `
       ${!isMine ? `
         <div class="w-7 h-7 brand-bg rounded-full flex items-center justify-center text-black font-bold text-xs flex-shrink-0 mr-2 mt-1">
-          ${avatarLetter}
+          ${avatarImage}
         </div>` : ''}
       <div class="max-w-xs lg:max-w-md">
         <div class="${isMine
@@ -52,7 +49,7 @@
           ${escapeHtml(msg.body)}
         </div>
         <div class="text-xs text-gray-600 mt-1 ${isMine ? 'text-right' : ''}">
-          ${msg.sent_at}
+          ${formatLocalTime(msg.sent_at_iso)}
         </div>
       </div>
     `;
@@ -76,6 +73,34 @@
     return d.innerHTML;
   }
 
+  function escapeAttribute(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  }
+
+  function parseUtc(value) {
+    if (!value) return null;
+    const normalized = /Z$|[+-]\d\d:\d\d$/.test(value) ? value : `${value}Z`;
+    const date = new Date(normalized);
+    return Number.isNaN(date.getTime()) ? null : date;
+  }
+
+  function formatLocalTime(value) {
+    const date = parseUtc(value);
+    if (!date) return '';
+    return date.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'Africa/Lagos'
+    });
+  }
+
+  function localizeTimes() {
+    document.querySelectorAll('.js-local-time[data-utc]').forEach((el) => {
+      const localTime = formatLocalTime(el.dataset.utc);
+      if (localTime) el.textContent = localTime;
+    });
+  }
+
   /* ── Poll for new messages ── */
   async function poll() {
     if (typeof POLL_URL === 'undefined') return;
@@ -87,7 +112,7 @@
           // Skip if already in DOM
           if (chatBox.querySelector(`[data-msg-id="${msg.id}"]`)) return;
           renderMessage(msg);
-          lastTimestamp = new Date().toISOString();
+          lastTimestamp = msg.sent_at_iso || new Date().toISOString();
         });
         scrollBottom(true);
         // Update badge in nav if messages received
@@ -108,15 +133,6 @@
     const body = chatInput.value.trim();
     if (!body) return;
 
-    // Optimistic render
-    const optimistic = {
-      id: 'pending-' + Date.now(),
-      body,
-      is_mine: true,
-      sent_at: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
-    };
-    renderMessage(optimistic);
-    scrollBottom(true);
     chatInput.value = '';
     chatInput.style.height = 'auto';
 
@@ -124,19 +140,14 @@
     try {
       const fd = new FormData(chatForm);
       fd.set('body', body);
-      const res = await fetch(chatForm.action, {
+      await fetch(chatForm.action, {
         method: 'POST',
         body: new URLSearchParams(fd),
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         redirect: 'manual',
       });
-      // Remove optimistic bubble — polling will render the real one with correct id
-      const pending = chatBox.querySelector(`[data-msg-id="pending-${optimistic.id.split('-')[1]}"]`);
-      if (pending) {
-        // Update its ID to avoid duplication
-        lastTimestamp = new Date(Date.now() - 500).toISOString();
-        setTimeout(poll, 200);
-      }
+      lastTimestamp = new Date(Date.now() - 2000).toISOString();
+      setTimeout(poll, 200);
     } catch (err) {
       console.error('Send failed:', err);
     }
@@ -173,6 +184,13 @@
 
   // Expose partner initial for renderMessage (set by inline script in templates)
   if (typeof PARTNER_ID !== 'undefined') {
+    if (typeof PARTNER_INITIAL !== 'undefined') {
+      window.PARTNER_INITIAL = PARTNER_INITIAL;
+    }
+    if (typeof PARTNER_IMAGE_URL !== 'undefined') {
+      window.PARTNER_IMAGE_URL = PARTNER_IMAGE_URL;
+    }
+
     // Try to read from the existing avatar in DOM
     const firstAvatar = chatBox.querySelector('.brand-bg');
     if (firstAvatar && firstAvatar.tagName === 'DIV' && firstAvatar.classList.contains('rounded-full')) {

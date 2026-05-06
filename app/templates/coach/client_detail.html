@@ -24,9 +24,14 @@
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
     <!-- Profile card -->
     <div class="bg-dark-800 border border-gray-800 rounded-2xl p-6 text-center">
-      <div class="w-16 h-16 brand-bg rounded-full flex items-center justify-center text-black font-bold text-xl mx-auto mb-3">
-        {{ cc.client.first_name[0] }}{{ cc.client.last_name[0] }}
-      </div>
+      {% if cc.client.image_file and cc.client.image_file != 'default.jpg' %}
+        <img src="{{ cc.client.image_file }}" alt="{{ cc.client.full_name }}"
+          class="w-16 h-16 rounded-full object-cover mx-auto mb-3">
+      {% else %}
+        <div class="w-16 h-16 brand-bg rounded-full flex items-center justify-center text-black font-bold text-xl mx-auto mb-3">
+          {{ cc.client.first_name[0] }}{{ cc.client.last_name[0] }}
+        </div>
+      {% endif %}
       <h2 class="font-semibold text-white">{{ cc.client.full_name }}</h2>
       <p class="text-xs text-gray-500 mt-0.5">{{ cc.client.email }}</p>
       <span class="inline-block mt-2 badge-{{ cc.client.membership }} px-2.5 py-1 rounded-full text-xs font-semibold">{{ cc.client.membership.capitalize() }}</span>
@@ -194,11 +199,23 @@
     <div id="chat-box" class="bg-dark-800 border border-gray-800 rounded-2xl p-4 h-96 overflow-y-auto flex flex-col gap-3 mb-4">
       {% for msg in thread %}
       <div class="flex {% if msg.sender_id == current_user.id %}justify-end{% else %}justify-start{% endif %}" data-msg-id="{{ msg.id }}">
+        {% if msg.sender_id != current_user.id %}
+          {% if cc.client.image_file and cc.client.image_file != 'default.jpg' %}
+            <img src="{{ cc.client.image_file }}" alt="{{ cc.client.full_name }}"
+              class="w-7 h-7 rounded-full object-cover flex-shrink-0 mr-2 mt-1">
+          {% else %}
+            <div class="w-7 h-7 brand-bg rounded-full flex items-center justify-center text-black font-bold text-xs flex-shrink-0 mr-2 mt-1">
+              {{ cc.client.first_name[0] }}
+            </div>
+          {% endif %}
+        {% endif %}
         <div class="max-w-xs lg:max-w-sm">
           <div class="{% if msg.sender_id == current_user.id %}brand-bg text-black{% else %}bg-dark-600 text-white{% endif %} rounded-2xl {% if msg.sender_id == current_user.id %}rounded-tr-sm{% else %}rounded-tl-sm{% endif %} px-4 py-2.5 text-sm">
             {{ msg.body }}
           </div>
-          <div class="text-xs text-gray-600 mt-1 {% if msg.sender_id == current_user.id %}text-right{% endif %}">{{ msg.sent_at.strftime('%H:%M') }}</div>
+          <div class="text-xs text-gray-600 mt-1 {% if msg.sender_id == current_user.id %}text-right{% endif %}">
+            <span class="js-local-time" data-utc="{{ msg.sent_at.isoformat() }}Z">{{ msg.sent_at.strftime('%H:%M') }}</span>
+          </div>
         </div>
       </div>
       {% else %}
@@ -221,6 +238,9 @@
 <script>
   const PARTNER_ID = "{{ cc.client_id }}";
   const CURRENT_ID = "{{ current_user.id }}";
+  const POLL_URL = "{{ url_for('main.messages_poll', partner_id=cc.client_id) }}";
+  const PARTNER_INITIAL = "{{ cc.client.first_name[0] }}";
+  const PARTNER_IMAGE_URL = '{{ cc.client.image_file if cc.client.image_file and cc.client.image_file != "default.jpg" else "" }}';
 
   function switchTab(name) {
     document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('hidden'));

@@ -13,12 +13,12 @@
     {% if assignment %}
     <div class="bg-dark-700 border border-brand rounded-2xl p-4 mb-6 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        {% if my_coach.image_file %}
-          <img src="{{ my_coach.image_file }}" alt="{{ my_coach.full_name }}"
+        {% if assignment.coach.image_file and assignment.coach.image_file != 'default.jpg' %}
+          <img src="{{ assignment.coach.image_file }}" alt="{{ assignment.coach.full_name }}"
               class="w-12 h-12 rounded-full object-cover flex-shrink-0">
         {% else %}
           <div class="w-12 h-12 brand-bg rounded-full flex items-center justify-center text-brand font-bold text-lg flex-shrink-0">
-            {{ my_coach.first_name[0] }}{{ my_coach.last_name[0] }}
+            {{ assignment.coach.first_name[0] }}{{ assignment.coach.last_name[0] }}
           </div>
         {% endif %} 
         <div>
@@ -40,13 +40,22 @@
     {% for c in convos %}
     <a href="{{ url_for('main.messages_thread', partner_id=c.partner.id) }}"
        class="bg-dark-700 border {% if c.unread > 0 %}border-brand{% else %}border-gray-800{% endif %} rounded-2xl p-4 flex items-center gap-4 hover:border-brand transition-colors group">
-      <div class="w-11 h-11 brand-bg rounded-full flex items-center justify-center text-black font-bold flex-shrink-0">
-        {{ c.partner.first_name[0] }}{{ c.partner.last_name[0] }}
-      </div>
+      {% if c.partner.image_file and c.partner.image_file != 'default.jpg' %}
+        <img src="{{ c.partner.image_file }}" alt="{{ c.partner.full_name }}"
+          class="w-11 h-11 rounded-full object-cover flex-shrink-0">
+      {% else %}
+        <div class="w-11 h-11 brand-bg rounded-full flex items-center justify-center text-black font-bold flex-shrink-0">
+          {{ c.partner.first_name[0] }}{{ c.partner.last_name[0] }}
+        </div>
+      {% endif %}
       <div class="flex-1 min-w-0">
         <div class="flex items-center justify-between mb-0.5">
           <span class="font-semibold text-white text-sm group-hover:text-brand transition-colors">{{ c.partner.full_name }}</span>
-          <span class="text-xs text-gray-600">{% if c.last %}{{ c.last.sent_at.strftime('%d %b, %H:%M') }}{% endif %}</span>
+          <span class="text-xs text-gray-600">
+            {% if c.last %}
+              <span class="js-local-datetime" data-utc="{{ c.last.sent_at.isoformat() }}Z">{{ c.last.sent_at.strftime('%d %b, %H:%M') }}</span>
+            {% endif %}
+          </span>
         </div>
         <div class="text-xs text-gray-400 truncate">
           {% if c.last %}
@@ -74,4 +83,21 @@
   </div>
   {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  document.querySelectorAll('.js-local-datetime[data-utc]').forEach((el) => {
+    const date = new Date(el.dataset.utc);
+    if (!Number.isNaN(date.getTime())) {
+      el.textContent = date.toLocaleString([], {
+        day: '2-digit',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZone: 'Africa/Lagos'
+      });
+    }
+  });
+</script>
 {% endblock %}
