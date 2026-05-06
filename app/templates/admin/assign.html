@@ -48,16 +48,14 @@
     {% for coach in coaches %}
     {% set client_count = coach.coached_clients|selectattr('is_active')|list|length %}
     <div class="bg-dark-800 border border-gray-800 rounded-2xl p-4 flex items-center gap-4">
-      <div class="w-10 h-10 brand-bg rounded-full flex items-center justify-center text-brand font-bold flex-shrink-0">
-        {% if coach.image_file %}
-          <img src="{{ coach.image_file }}" alt="{{ coach.full_name }}"
-              class="w-10 h-10 rounded-full object-cover mb-3">
-        {% else %}
-          <div class="w-10 h-10 brand-bg rounded-full flex items-center justify-center text-brand font-bold text-xl mb-3">
-            {{ coach.first_name[0] }}{{ coach.last_name[0] }}
-          </div>
-        {% endif %}
-      </div>
+      {% if coach.image_file and coach.image_file != 'default.jpg' %}
+        <img src="{{ coach.image_file }}" alt="{{ coach.full_name }}"
+          class="w-10 h-10 rounded-full object-cover flex-shrink-0">
+      {% else %}
+        <div class="w-10 h-10 brand-bg rounded-full flex items-center justify-center text-brand font-bold text-sm flex-shrink-0">
+          {{ coach.first_name[0] }}{{ coach.last_name[0] }}
+        </div>
+      {% endif %}
       <div class="flex-1 min-w-0">
         <div class="flex items-center justify-between mb-1">
           <span class="font-semibold text-white text-sm">{{ coach.full_name }}</span>
@@ -99,7 +97,14 @@
         <tr class="hover:bg-dark-700 transition-colors">
           <td class="px-5 py-3">
             <div class="flex items-center gap-2">
-              <div class="w-7 h-7 brand-bg rounded-full flex items-center justify-center text-brand font-bold text-xs flex-shrink-0">{{ a.client.first_name[0] }}</div>
+              {% if a.client.image_file and a.client.image_file != 'default.jpg' %}
+                <img src="{{ a.client.image_file }}" alt="{{ a.client.full_name }}"
+                  class="w-7 h-7 rounded-full object-cover flex-shrink-0">
+              {% else %}
+                <div class="w-7 h-7 brand-bg rounded-full flex items-center justify-center text-brand font-bold text-xs flex-shrink-0">
+                  {{ a.client.first_name[0] }}{{ a.client.last_name[0] }}
+                </div>
+              {% endif %}
               <div>
                 <div class="text-white font-medium text-xs">{{ a.client.full_name }}</div>
                 <span class="badge-{{ a.client.membership }} text-xs px-1.5 py-0.5 rounded-full">{{ a.client.membership }}</span>
@@ -108,17 +113,14 @@
           </td>
           <td class="px-5 py-3">
             <div class="flex items-center gap-2">
-              <div class="w-6 h-6 bg-dark-500 rounded-full flex items-center justify-center text-gray-300 text-xs flex-shrink-0">
-                {% for coach in coaches %}
-                  <div>
-                    {% if coach.image_file %}
-                      <img src="{{ coach.image_file }} ">
-                    {% else %}
-                      {{ coach.full_name }}
-                    {% endif %}
-                  </div>
-                {% endfor %}
-              </div>
+              {% if a.coach.image_file and a.coach.image_file != 'default.jpg' %}
+                <img src="{{ a.coach.image_file }}" alt="{{ a.coach.full_name }}"
+                  class="w-6 h-6 rounded-full object-cover flex-shrink-0">
+              {% else %}
+                <div class="w-6 h-6 bg-dark-500 rounded-full flex items-center justify-center text-gray-300 text-xs font-bold flex-shrink-0">
+                  {{ a.coach.first_name[0] }}{{ a.coach.last_name[0] }}
+                </div>
+              {% endif %}
               <span class="text-gray-300 text-xs">{{ a.coach.full_name }}</span>
             </div>
           </td>

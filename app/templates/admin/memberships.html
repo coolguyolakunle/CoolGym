@@ -51,9 +51,14 @@
         <tr class="hover:bg-dark-700 transition-colors">
           <td class="px-5 py-3.5">
             <a href="{{ url_for('admin.admin_user_detail', uid=b.user_id) }}" class="flex items-center gap-3 group">
-              <div class="w-7 h-7 brand-bg rounded-full flex items-center justify-center text-brand font-bold text-xs flex-shrink-0">
-                {{ b.user.first_name[0] }}{{ b.user.last_name[0] }}
-              </div>
+              {% if b.user.image_file and b.user.image_file != 'default.jpg' %}
+                <img src="{{ b.user.image_file }}" alt="{{ b.user.full_name }}"
+                  class="w-7 h-7 rounded-full object-cover flex-shrink-0">
+              {% else %}
+                <div class="w-7 h-7 brand-bg rounded-full flex items-center justify-center text-brand font-bold text-xs flex-shrink-0">
+                  {{ b.user.first_name[0] }}{{ b.user.last_name[0] }}
+                </div>
+              {% endif %}
               <span class="text-white group-hover:text-brand transition-colors">{{ b.user.full_name }}</span>
             </a>
           </td>
