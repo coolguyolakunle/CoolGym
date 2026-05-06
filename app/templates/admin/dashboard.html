@@ -70,9 +70,14 @@
     <div class="flex flex-col gap-3">
       {% for user in recent_users %}
       <a href="{{ url_for('admin.admin_user_detail', uid=user.id) }}" class="flex items-center gap-3 group">
-        <div class="w-8 h-8 brand-bg rounded-full flex items-center justify-center text-brand font-bold text-xs flex-shrink-0">
-          {{ user.first_name[0] }}{{ user.last_name[0] }}
-        </div>
+        {% if user.image_file and user.image_file != 'default.jpg' %}
+          <img src="{{ user.image_file }}" alt="{{ user.full_name }}"
+            class="w-8 h-8 rounded-full object-cover flex-shrink-0">
+        {% else %}
+          <div class="w-8 h-8 brand-bg rounded-full flex items-center justify-center text-brand font-bold text-xs flex-shrink-0">
+            {{ user.first_name[0] }}{{ user.last_name[0] }}
+          </div>
+        {% endif %}
         <div class="flex-1 min-w-0">
           <div class="text-sm font-medium text-white truncate group-hover:brand-text transition-colors">{{ user.full_name }}</div>
           <div class="text-xs text-gray-500">{{ user.joined_at.strftime('%d %b %Y') }}</div>
