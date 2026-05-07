@@ -9,9 +9,6 @@
 html          { background: #0a0a0a; overflow-x: hidden; }
 body          { overflow-x: hidden; }
 img, video, canvas, svg { max-width: 100%; }
-a, p, span, div, h1, h2, h3, h4, h5, h6, button, input, textarea, select {
-  overflow-wrap: anywhere;
-}
 
 /* ── Page transition overlay ── */
 #page-transition {
@@ -158,6 +155,20 @@ input:focus, textarea:focus, select:focus {
   vertical-align: text-bottom;
 }
 
+#typewriter-word {
+  display: inline-block;
+  min-width: 3.9em;
+  white-space: nowrap;
+  word-break: keep-all;
+  overflow-wrap: normal;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #heroVideo2 {
+    display: none;
+  }
+}
+
 /* ── Parallax base ── */
 .parallax { will-change: transform; }
 
@@ -265,6 +276,15 @@ input:focus, textarea:focus, select:focus {
   .font-display {
     letter-spacing: 0;
     line-height: 0.96;
+  }
+
+  a, p, span, div, h1, h2, h3, h4, h5, h6, button, input, textarea, select {
+    overflow-wrap: anywhere;
+  }
+
+  #typewriter-word {
+    min-width: 3.9em;
+    overflow-wrap: normal;
   }
 
   h1.font-display,

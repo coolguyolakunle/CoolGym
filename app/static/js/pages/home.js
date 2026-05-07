@@ -7,6 +7,30 @@
   'use strict';
 
   /* ── Typewriter cycling words ── */
+  /* Hero background video crossfade */
+  const heroVideo1 = document.getElementById('heroVideo1');
+  const heroVideo2 = document.getElementById('heroVideo2');
+
+  if (heroVideo1 && heroVideo2) {
+    let showFirstVideo = true;
+
+    [heroVideo1, heroVideo2].forEach((video) => {
+      video.muted = true;
+      video.playsInline = true;
+      video.play().catch(() => {
+        // Some browsers defer autoplay until the page settles; the poster remains visible.
+      });
+    });
+
+    setInterval(() => {
+      showFirstVideo = !showFirstVideo;
+      heroVideo1.classList.toggle('opacity-0', !showFirstVideo);
+      heroVideo1.classList.toggle('opacity-100', showFirstVideo);
+      heroVideo2.classList.toggle('opacity-0', showFirstVideo);
+      heroVideo2.classList.toggle('opacity-100', !showFirstVideo);
+    }, 8000);
+  }
+
   const words   = ['STARTS', 'BEGINS', 'HAPPENS', 'LIVES'];
   const el      = document.getElementById('typewriter-word');
 

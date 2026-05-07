@@ -4,11 +4,26 @@
 
 <!-- ── HERO ── -->
 <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
-  <!-- BG gradient mesh -->
-  <div class="absolute inset-0 bg-gradient-to-br from-dark via-dark-800 to-dark-700 parallax" data-speed="0.15"></div>
-  <div class="absolute inset-0 parallax" data-speed="0.1" style="background:radial-gradient(ellipse 80% 60% at 60% 40%, rgba(232,255,0,0.07) 0%, transparent 70%)"></div>
-  <!-- Decorative grid -->
-  <div class="absolute inset-0 opacity-5 parallax" data-speed="0.05" style="background-image:linear-gradient(rgba(255,255,255,.1) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.1) 1px,transparent 1px);background-size:60px 60px"></div>
+  <!-- Video background -->
+  <div class="absolute inset-0 overflow-hidden bg-dark">
+    <video id="heroVideo1"
+           class="absolute inset-0 w-full h-full object-cover opacity-100 transition-opacity duration-1000"
+           autoplay muted loop playsinline preload="metadata"
+           poster="{{ url_for('static', filename='img/about1.jpg') }}">
+      <source src="{{ url_for('static', filename='videos/gym1.mp4') }}" type="video/mp4">
+    </video>
+
+    <video id="heroVideo2"
+           class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-1000"
+           autoplay muted loop playsinline preload="metadata"
+           poster="{{ url_for('static', filename='img/about2.jpg') }}">
+      <source src="{{ url_for('static', filename='videos/gym2.mp4') }}" type="video/mp4">
+    </video>
+
+    <div class="absolute inset-0 bg-black/65"></div>
+    <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-black/50"></div>
+    <div class="absolute inset-0 opacity-10" style="background-image:linear-gradient(rgba(255,255,255,.1) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.1) 1px,transparent 1px);background-size:60px 60px"></div>
+  </div>
 
     <div class="relative z-10 max-w-7xl mx-auto px-6 md:px-12 pt-28 pb-20 flex flex-col md:flex-row items-center gap-12">
         <div class="flex-1 text-center md:text-left">
