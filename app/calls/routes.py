@@ -11,6 +11,20 @@ from ..models import CoachClient, User
 
 calls = Blueprint('calls', __name__)
 call_sessions = {}
+DEFAULT_ICE_SERVERS = [
+    {'urls': 'stun:stun.l.google.com:19302'},
+    {'urls': 'stun:stun1.l.google.com:19302'},
+    {
+        'urls': 'turn:openrelay.metered.ca:80',
+        'username': 'openrelayproject',
+        'credential': 'openrelayproject',
+    },
+    {
+        'urls': 'turn:openrelay.metered.ca:443',
+        'username': 'openrelayproject',
+        'credential': 'openrelayproject',
+    },
+]
 
 
 @dataclass
@@ -40,15 +54,19 @@ def direct_room_id(user_a_id, user_b_id):
 def ice_servers():
     raw = os.getenv('WEBRTC_ICE_SERVERS', '').strip()
     if not raw:
-        return []
+        return DEFAULT_ICE_SERVERS
 
     try:
         servers = json.loads(raw)
     except json.JSONDecodeError:
         current_app.logger.warning('WEBRTC_ICE_SERVERS must be valid JSON.')
-        return []
+        return DEFAULT_ICE_SERVERS
 
-    return servers if isinstance(servers, list) else []
+    if not isinstance(servers, list) or not servers:
+        current_app.logger.warning('WEBRTC_ICE_SERVERS must be a non-empty JSON list.')
+        return DEFAULT_ICE_SERVERS
+
+    return servers
 
 
 def can_direct_call(user, partner):

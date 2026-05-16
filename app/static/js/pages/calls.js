@@ -19,6 +19,7 @@
 
   const peers = new Map();
   const participantNames = new Map();
+  const disconnectTimers = new Map();
   let localStream = null;
   let cameraVideoTrack = null;
   let screenTrack = null;
@@ -247,7 +248,27 @@
     };
 
     pc.onconnectionstatechange = () => {
-      if (['failed', 'closed', 'disconnected'].includes(pc.connectionState)) {
+      if (pc.connectionState === 'connected') {
+        const timer = disconnectTimers.get(toSid);
+        if (timer) clearTimeout(timer);
+        disconnectTimers.delete(toSid);
+        updateParticipantStatus();
+      }
+
+      if (pc.connectionState === 'disconnected') {
+        setStatus('Connection interrupted. Reconnecting...');
+        const oldTimer = disconnectTimers.get(toSid);
+        if (oldTimer) clearTimeout(oldTimer);
+        disconnectTimers.set(toSid, setTimeout(() => {
+          const peer = peers.get(toSid);
+          if (peer && peer.pc.connectionState === 'disconnected') {
+            closePeer(toSid);
+          }
+          disconnectTimers.delete(toSid);
+        }, 10000));
+      }
+
+      if (['failed', 'closed'].includes(pc.connectionState)) {
         closePeer(toSid);
       }
     };
@@ -277,6 +298,10 @@
   }
 
   function closePeer(sid) {
+    const timer = disconnectTimers.get(sid);
+    if (timer) clearTimeout(timer);
+    disconnectTimers.delete(sid);
+
     const peer = peers.get(sid);
     if (peer) peer.pc.close();
     peers.delete(sid);
