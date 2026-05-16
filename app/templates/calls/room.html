@@ -1,0 +1,90 @@
+{% extends "coach/base.html" if current_user.role == 'coach' else "base.html" %}
+{% block title %}{{ room_title }} - CoolGym{% endblock %}
+{% block page_title %}Video Session{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto {% if current_user.role != 'coach' %}px-4 md:px-6 pt-28 pb-10{% endif %}">
+  <div
+    id="call-room"
+    data-room-id="{{ room_id }}"
+    data-room-mode="{{ room_mode }}"
+    data-user-name="{{ current_user.full_name }}"
+    data-user-role="{{ current_user.role }}"
+    data-return-url="{{ url_for('main.messages_thread', partner_id=partner.id) if partner else url_for('coach.coach_dashboard') if current_user.role == 'coach' else url_for('main.dashboard') }}"
+    data-ice-servers='{{ ice_servers|tojson }}'
+    class="min-h-[calc(100vh-9rem)] flex flex-col gap-4">
+
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+      <div>
+        <span class="text-xs brand-text font-semibold uppercase tracking-widest">{{ '1-on-1 Call' if room_mode == 'direct' else 'Group Room' }}</span>
+        <h1 class="font-display text-3xl md:text-5xl text-white mt-1">{{ room_title }}</h1>
+        <p id="call-status" class="text-sm text-gray-400 mt-1">Waiting for camera permission...</p>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        {% if room_mode == 'group' %}
+        <button type="button" id="copy-link"
+          class="border border-gray-700 text-gray-300 font-semibold px-4 py-2.5 rounded-xl text-sm hover:border-brand hover:text-brand transition-colors">
+          Copy invite link
+        </button>
+        {% endif %}
+        <a href="{{ url_for('main.messages_thread', partner_id=partner.id) if partner else url_for('coach.coach_dashboard') if current_user.role == 'coach' else url_for('main.dashboard') }}"
+          class="border border-gray-700 text-gray-300 font-semibold px-4 py-2.5 rounded-xl text-sm hover:border-white hover:text-white transition-colors">
+          Back
+        </a>
+      </div>
+    </div>
+
+    <section id="video-grid" class="call-stage flex-1 min-h-[24rem]" data-room-mode="{{ room_mode }}"></section>
+
+    <div class="sticky bottom-4 z-20">
+      <div class="mx-auto w-fit max-w-full bg-dark-800/95 border border-gray-700 rounded-2xl px-3 py-3 shadow-2xl backdrop-blur">
+        <div id="device-panel" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
+          <select id="camera-select" class="device-select" aria-label="Camera"></select>
+          <select id="mic-select" class="device-select" aria-label="Microphone"></select>
+        </div>
+        <div class="flex flex-wrap items-center justify-center gap-2">
+          <button type="button" id="start-call" class="call-control primary">Start camera</button>
+          <button type="button" id="toggle-mic" class="call-control" aria-pressed="false">Mute</button>
+          <button type="button" id="toggle-camera" class="call-control" aria-pressed="false">Camera off</button>
+          <button type="button" id="toggle-screen" class="call-control">Share screen</button>
+          <button type="button" id="leave-call" class="call-control danger">Leave</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_head %}
+{{ super() }}
+<style>
+  .call-stage{position:relative;display:grid;grid-template-columns:repeat(auto-fit,minmax(18rem,1fr));gap:1rem;align-content:stretch}
+  .call-tile{position:relative;overflow:hidden;border:1px solid #1f2937;background:#111;border-radius:1rem;min-height:18rem;aspect-ratio:16/10}
+  .call-stage.has-remote .remote-tile{min-height:clamp(24rem,58vh,44rem);aspect-ratio:auto}
+  .call-stage.has-remote .local-tile{position:absolute;right:1rem;bottom:1rem;z-index:10;width:clamp(8.5rem,18vw,15rem);min-height:0;aspect-ratio:9/16;border:2px solid rgba(232,255,0,.85);border-radius:.85rem;box-shadow:0 18px 45px rgba(0,0,0,.45)}
+  .call-stage.direct-call.has-remote{display:block;min-height:clamp(28rem,68vh,48rem)}
+  .call-stage.direct-call.has-remote .primary-remote{width:100%;height:100%;min-height:clamp(28rem,68vh,48rem);aspect-ratio:auto}
+  .call-stage.direct-call.has-remote .secondary-remote{display:none}
+  .call-tile video{width:100%;height:100%;object-fit:cover;background:#050505}
+  .call-tile .label{position:absolute;left:.75rem;bottom:.75rem;background:rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.12);border-radius:.75rem;padding:.35rem .6rem;font-size:.75rem;color:#fff}
+  .call-stage.has-remote .local-tile .label{left:.5rem;bottom:.5rem;padding:.25rem .45rem;font-size:.65rem}
+  .call-tile .empty{height:100%;display:flex;align-items:center;justify-content:center;color:#6b7280;font-size:.875rem;text-align:center;padding:1rem}
+  .device-select{min-width:0;background:#111;border:1px solid #374151;color:#d1d5db;border-radius:.75rem;padding:.65rem .75rem;font-size:.8125rem}
+  .device-select:focus{outline:none;border-color:#E8FF00}
+  .call-control{border:1px solid #374151;color:#d1d5db;font-weight:700;padding:.7rem 1rem;border-radius:.85rem;font-size:.875rem;transition:all .2s;white-space:nowrap}
+  .call-control.primary{border-color:#E8FF00;color:#0a0a0a;background:#E8FF00}
+  .call-control.hidden{display:none}
+  .call-control:hover,.call-control.active{border-color:#E8FF00;color:#E8FF00}
+  .call-control.primary:hover{color:#0a0a0a;opacity:.9}
+  .call-control.disabled,.call-control:disabled{border-color:#1f2937;color:#4b5563;cursor:not-allowed}
+  .call-control.danger{border-color:#7f1d1d;color:#f87171}
+  .call-control.danger:hover{background:#7f1d1d;color:#fff}
+  @media (max-width:640px){.call-control{flex:1 1 calc(50% - .5rem);padding:.65rem .75rem;font-size:.8125rem}.call-tile{min-height:14rem}.call-stage.has-remote .remote-tile{min-height:60vh}.call-stage.direct-call.has-remote{min-height:62vh}.call-stage.direct-call.has-remote .primary-remote{height:62vh;min-height:62vh}.call-stage.has-remote .local-tile{right:.75rem;bottom:.75rem;width:7.5rem}}
+</style>
+{% endblock %}
+
+{% block extra_scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/vendor/socket.io.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/pages/calls.js') }}" defer></script>
+{% endblock %}

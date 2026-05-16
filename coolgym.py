@@ -1,6 +1,6 @@
 import os
 from app import create_app
-from app.extensions import db
+from app.extensions import db, socketio
 from app.models import User
 
 app = create_app()
@@ -27,4 +27,4 @@ def create_admin_user():
 
 if __name__ == '__main__':
     create_admin_user()
-    app.run(debug=True)
+    socketio.run(app, debug=True, allow_unsafe_werkzeug=True)

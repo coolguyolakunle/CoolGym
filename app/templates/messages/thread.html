@@ -26,9 +26,15 @@
         {% if partner.specialty %} · {{ partner.specialty }}{% endif %}
       </div>
     </div>
+    {% if (current_user.role == 'member' and partner.role == 'coach') or (current_user.role in ('coach', 'admin') and partner.role == 'member') %}
+    <a href="{{ url_for('calls.direct_call', partner_id=partner.id) }}"
+       class="ml-auto brand-bg text-black font-bold text-xs px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity">
+      Video call
+    </a>
+    {% endif %}
     {% if current_user.role in ('coach', 'admin') and partner.role == 'member' %}
     <a href="{{ url_for('coach.coach_client_detail', client_id=partner.id) }}"
-       class="ml-auto border border-gray-700 text-gray-300 text-xs px-3 py-1.5 rounded-lg hover:border-brand hover:text-brand transition-colors">
+       class="border border-gray-700 text-gray-300 text-xs px-3 py-1.5 rounded-lg hover:border-brand hover:text-brand transition-colors">
       View Profile →
     </a>
     {% endif %}

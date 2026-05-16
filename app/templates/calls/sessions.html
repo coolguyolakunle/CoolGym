@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Video Calls — CoolGym{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-6 pt-28 pb-20">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <span class="text-xs brand-text font-semibold uppercase tracking-widest">Video Calls</span>
+      <h1 class="font-display text-4xl text-white mt-1">SESSIONS</h1>
+    </div>
+    <!-- Start call buttons -->
+    <div class="flex gap-3">
+      {% if current_user.role in ('coach', 'admin') %}
+      <a href="{{ url_for('calls.new_group_session') }}"
+         class="border border-gray-700 text-gray-300 font-semibold px-5 py-2.5 rounded-full text-sm hover:border-brand hover:text-brand transition-colors">
+        👥 Group Session
+      </a>
+      {% endif %}
+      {% if current_user.role == 'member' %}
+        {% set assignment = current_user.coach_assignments|selectattr('is_active')|list|first %}
+        {% if assignment %}
+        <form method="POST" action="{{ url_for('calls.start_group_session') }}">
+          <input type="hidden" name="call_type" value="direct">
+          <input type="hidden" name="partner_id" value="{{ assignment.coach_id }}">
+          <button type="submit" class="brand-bg text-black font-bold px-5 py-2.5 rounded-full text-sm hover:opacity-90 transition-opacity ripple-btn">
+            📞 Call My Coach
+          </button>
+        </form>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+
+  {% if sessions %}
+  <div class="flex flex-col gap-4">
+    {% for s in sessions %}
+    <div class="bg-dark-700 border {% if s.status == 'active' %}border-green-700{% else %}border-gray-800{% endif %} rounded-2xl p-5 flex items-center gap-4">
+      <div class="w-12 h-12 {% if s.call_type == 'group' %}bg-purple-900{% else %}bg-dark-600{% endif %} rounded-xl flex items-center justify-center text-2xl flex-shrink-0">
+        {{ '👥' if s.call_type == 'group' else '📞' }}
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 mb-0.5">
+          <span class="font-semibold text-white truncate">{{ s.title }}</span>
+          {% if s.status == 'active' %}
+          <span class="bg-green-900 text-green-400 text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">● LIVE</span>
+          {% elif s.status == 'waiting' %}
+          <span class="bg-yellow-900 text-yellow-400 text-xs font-bold px-2 py-0.5 rounded-full">Waiting</span>
+          {% else %}
+          <span class="bg-gray-800 text-gray-500 text-xs font-bold px-2 py-0.5 rounded-full">Ended</span>
+          {% endif %}
+        </div>
+        <div class="text-xs text-gray-500">
+          Hosted by {{ s.host.full_name }} ·
+          {{ 'Group Session' if s.call_type == 'group' else '1-on-1 Call' }} ·
+          {{ s.created_at.strftime('%d %b %Y, %H:%M') }}
+          {% if s.ended_at %} → {{ s.ended_at.strftime('%H:%M') }}{% endif %}
+        </div>
+        <div class="text-xs font-mono text-gray-600 mt-0.5">Room: {{ s.room_id }}</div>
+      </div>
+      <div class="flex-shrink-0">
+        {% if s.status in ('active', 'waiting') %}
+        <a href="{{ url_for('calls.group_session', room_id=s.room_id) }}"
+           class="brand-bg text-black font-bold px-5 py-2.5 rounded-full text-sm hover:opacity-90 transition-opacity inline-block">
+          Join →
+        </a>
+        {% else %}
+        <span class="border border-gray-700 text-gray-500 px-5 py-2.5 rounded-full text-sm">Ended</span>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center py-20">
+    <div class="text-6xl mb-4">📹</div>
+    <h2 class="font-display text-3xl text-white mb-2">NO SESSIONS YET</h2>
+    <p class="text-gray-400 text-sm max-w-xs mx-auto">
+      {% if current_user.role == 'coach' %}Start a call from any client's profile page, or create a group session.
+      {% elif current_user.role == 'member' %}Your coach's active sessions will appear here. You can also call your coach directly.
+      {% else %}Sessions will appear here once created.{% endif %}
+    </p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

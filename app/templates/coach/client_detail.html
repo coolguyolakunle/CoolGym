@@ -67,6 +67,10 @@
            class="brand-bg text-black font-bold px-5 py-2.5 rounded-xl text-sm hover:opacity-90 transition-opacity ripple-btn">
           💬 Send Message
         </a>
+        <a href="{{ url_for('calls.direct_call', partner_id=cc.client_id) }}"
+           class="border border-gray-700 text-gray-300 font-semibold px-5 py-2.5 rounded-xl text-sm hover:border-brand hover:text-brand transition-colors">
+          Video Call
+        </a>
         <button onclick="switchTab('plans')"
            class="border border-gray-700 text-gray-300 font-semibold px-5 py-2.5 rounded-xl text-sm hover:border-brand hover:text-brand transition-colors">
           + Create Plan

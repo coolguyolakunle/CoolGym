@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_migrate import Migrate
-from .extensions import db, login_manager
+from .extensions import db, login_manager, socketio
 import os
 from dotenv import load_dotenv
 import cloudinary
@@ -37,6 +37,7 @@ def create_app():
     db.init_app(app)
     login_manager.init_app(app)
     migrate.init_app(app, db)
+    socketio.init_app(app)
 
     login_manager.login_view = 'auth.login'
     login_manager.login_message_category = 'info'
@@ -46,11 +47,15 @@ def create_app():
     from .auth.routes import auth
     from .admin.routes import admin
     from .coach.routes import coach
+    from .calls.routes import calls
 
     app.register_blueprint(main)
     app.register_blueprint(auth)
     app.register_blueprint(admin, url_prefix='/admin')
     app.register_blueprint(coach, url_prefix='/coach')
+    app.register_blueprint(calls)
+
+    from .calls import sockets  # noqa: F401
 
     @app.cli.command('seed-admin')
     def seed_admin():

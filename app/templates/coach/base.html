@@ -56,6 +56,9 @@
         <span>💬</span> Messages
         {% if unread_count > 0 %}<span class="ml-auto brand-bg text-black text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">{{ unread_count }}</span>{% endif %}
       </a>
+      <a href="{{ url_for('calls.sessions') }}" class="sidebar-link {% if request.endpoint and request.endpoint.startswith('calls.') %}active{% endif %}">
+        <span>📹</span> Sessions
+      </a>
       <div class="text-xs text-gray-600 uppercase tracking-widest px-3 mt-4 mb-2">Account</div>
       <a href="{{ url_for('main.index') }}" target="_blank" class="sidebar-link"><span>🌐</span> View Site</a>
       <a href="{{ url_for('auth.logout') }}" class="sidebar-link hover:text-red-400"><span>🚪</span> Sign Out</a>

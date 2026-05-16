@@ -26,7 +26,10 @@
   <div class="lg:col-span-2 bg-dark-800 border border-gray-800 rounded-2xl p-5">
     <div class="flex items-center justify-between mb-5">
       <h2 class="font-semibold text-white">My Clients</h2>
-      <a href="{{ url_for('coach.coach_clients') }}" class="text-xs brand-text hover:underline">View all →</a>
+      <div class="flex items-center gap-3">
+        <a href="{{ url_for('calls.new_group_session') }}" class="text-xs brand-text hover:underline">Start group session</a>
+        <a href="{{ url_for('coach.coach_clients') }}" class="text-xs brand-text hover:underline">View all →</a>
+      </div>
     </div>
     {% if clients %}
     <div class="flex flex-col gap-3">
