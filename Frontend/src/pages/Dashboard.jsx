@@ -9,6 +9,7 @@ import { optimizeProfileImage } from '../utils/profileImage';
 export default function Dashboard() {
   const { user, refresh } = useAuth();
   const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState(null);
   const [logForm, setLogForm] = useState({ week: '', note: '', weight_kg: '', sessions: '', rating: 3 });
   const [busy, setBusy] = useState(false);
@@ -20,6 +21,8 @@ export default function Dashboard() {
       setData(d);
     } catch (e) {
       setNotice({ type: 'error', message: e.message });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -70,7 +73,17 @@ export default function Dashboard() {
     }
   };
 
-  if (!data) return <p className="text-gray-500">Loading...</p>;
+  if (loading) return <p className="text-gray-500">Loading...</p>;
+
+  if (!data) {
+    return (
+      <Notice
+        type="error"
+        message={notice?.message || 'Unable to load your dashboard. Please try again.'}
+        onDismiss={() => setNotice(null)}
+      />
+    );
+  }
 
   return (
     <div className="space-y-8">
