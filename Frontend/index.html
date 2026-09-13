@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CoolGym — Stronger Starts Here</title>
+  <link rel="icon" href="/assets/img/favicon.ico" type="image/x-icon" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { DEFAULT: '#E8FF00', dark: '#c9de00' },
+            dark:  { DEFAULT: '#0a0a0a', 800: '#111111', 700: '#1a1a1a', 600: '#222222', 500: '#2e2e2e' }
+          },
+          fontFamily: {
+            display: ['"Bebas Neue"', 'sans-serif'],
+            body: ['"DM Sans"', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { background: #0a0a0a; overflow-x: hidden; }
+    body { font-family: 'DM Sans', sans-serif; }
+    .font-display { font-family: 'Bebas Neue', sans-serif; }
+    @keyframes page-enter { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes float-in { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes brand-pulse { 0%, 100% { box-shadow: 0 0 0 rgba(232, 255, 0, 0); } 50% { box-shadow: 0 0 28px rgba(232, 255, 0, .18); } }
+    .page-transition { animation: page-enter .48s cubic-bezier(.22, 1, .36, 1) both; }
+    .stagger > * { animation: float-in .58s cubic-bezier(.22, 1, .36, 1) both; }
+    .stagger > *:nth-child(2) { animation-delay: .08s; }
+    .stagger > *:nth-child(3) { animation-delay: .16s; }
+    .stagger > *:nth-child(4) { animation-delay: .24s; }
+    .stagger > *:nth-child(5) { animation-delay: .32s; }
+    .stagger > *:nth-child(6) { animation-delay: .4s; }
+    .motion-card { transition: transform .28s ease, border-color .28s ease, box-shadow .28s ease; }
+    .motion-card:hover { transform: translateY(-7px); border-color: #e8ff00; box-shadow: 0 18px 36px rgba(0, 0, 0, .25); }
+    .media-lift { transition: transform .6s cubic-bezier(.22, 1, .36, 1), filter .35s ease; }
+    .motion-card:hover .media-lift { transform: scale(1.06); filter: saturate(1.12); }
+    .hero-motion { animation: brand-pulse 4s ease-in-out infinite; }
+    .nav-link { position: relative; }
+    .nav-link::after { content: ''; position: absolute; left: 0; right: 0; bottom: -7px; height: 2px; background: #e8ff00; transform: scaleX(0); transform-origin: left; transition: transform .24s ease; }
+    .nav-link:hover::after, .nav-link.text-white::after { transform: scaleX(1); }
+    .mobile-menu { display: grid; grid-template-rows: 0fr; opacity: 0; transform: translateY(-8px); transition: grid-template-rows .3s ease, opacity .22s ease, transform .3s ease; }
+    .mobile-menu > div { overflow: hidden; }
+    .mobile-menu.is-open { grid-template-rows: 1fr; opacity: 1; transform: translateY(0); }
+    .menu-toggle { transition: transform .24s ease, color .24s ease; }
+    .menu-toggle:hover { color: #e8ff00; transform: rotate(8deg) scale(1.06); }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body class="bg-dark text-white min-h-screen">
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+</html>

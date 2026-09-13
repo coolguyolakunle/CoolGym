@@ -1,0 +1,1 @@
+web: flask --app wsgi:app db upgrade && flask --app wsgi:app seed-admin && gunicorn --worker-class gthread --workers 1 --threads 8 --timeout 120 wsgi:app

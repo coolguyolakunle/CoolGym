@@ -1,0 +1,28 @@
+# Optional: Render "Blueprint" file. If you'd rather click through the
+# Render dashboard manually, you can ignore/delete this file.
+services:
+  - type: web
+    name: coolgym-backend
+    runtime: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "flask --app wsgi:app db upgrade && flask --app wsgi:app seed-admin && gunicorn --worker-class gthread --workers 1 --threads 8 --timeout 120 wsgi:app"
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: FLASK_ENV
+        value: production
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: FRONTEND_ORIGINS
+        sync: false
+      - key: SQLITE_DATABASE_URI
+        sync: false
