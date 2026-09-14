@@ -4,7 +4,7 @@ from google.auth.transport import requests as google_requests
 from google.auth.exceptions import GoogleAuthError
 from google.oauth2 import id_token
 from sqlalchemy.exc import SQLAlchemyError
-from ..extensions import db
+from ..extensions import create_auth_token, db
 from ..models import User
 from ..serializers import user_public
 from ..utils import validate_password_strength
@@ -46,13 +46,13 @@ def register():
 
     login_user(user)
 
-    return jsonify({"message": f"Welcome, {first_name}!", "user": user_public(user)}), 201
+    return jsonify({"message": f"Welcome, {first_name}!", "user": user_public(user), "token": create_auth_token(user.id)}), 201
 
 
 @auth.route('/api/auth/login', methods=['POST'])
 def login():
     if current_user.is_authenticated:
-        return jsonify({"user": user_public(current_user)})
+        return jsonify({"user": user_public(current_user), "token": create_auth_token(current_user.id)})
 
     data = request.get_json(silent=True) or request.form
 
@@ -64,7 +64,7 @@ def login():
 
     if user and user.check_password(password):
         login_user(user, remember=remember)
-        return jsonify({"user": user_public(user)})
+        return jsonify({"user": user_public(user), "token": create_auth_token(user.id)})
 
     return jsonify({"error": "invalid_credentials", "message": "Invalid email or password."}), 401
 
@@ -72,7 +72,7 @@ def login():
 @auth.route('/api/auth/google', methods=['POST'])
 def google_login():
     if current_user.is_authenticated:
-        return jsonify({"user": user_public(current_user)})
+        return jsonify({"user": user_public(current_user), "token": create_auth_token(current_user.id)})
 
     data = request.get_json(silent=True) or request.form
     credential = (data.get('credential') or '').strip()
@@ -104,7 +104,7 @@ def google_login():
     user = User.query.filter_by(google_id=google_id).first()
     if user:
         login_user(user)
-        return jsonify({"message": f"Welcome back, {user.first_name}!", "user": user_public(user)})
+        return jsonify({"message": f"Welcome back, {user.first_name}!", "user": user_public(user), "token": create_auth_token(user.id)})
 
     if User.query.filter_by(email=email).first():
         return jsonify({
@@ -136,7 +136,7 @@ def google_login():
         return jsonify({"error": "database_error", "message": "Unable to create the Google account. Please try again."}), 500
 
     login_user(user)
-    return jsonify({"message": f"Welcome, {user.first_name}!", "user": user_public(user)}), 201
+    return jsonify({"message": f"Welcome, {user.first_name}!", "user": user_public(user), "token": create_auth_token(user.id)}), 201
 
 
 @auth.route('/api/auth/logout', methods=['POST'])

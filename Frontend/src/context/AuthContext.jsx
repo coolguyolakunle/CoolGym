@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { api } from '../api';
+import { api, clearAuthToken, saveAuthToken } from '../api';
 
 const AuthContext = createContext(null);
 
@@ -24,18 +24,21 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password, remember) => {
     const data = await api.post('/api/auth/login', { email, password, remember });
+    saveAuthToken(data.token);
     setUser(data.user);
     return data.user;
   };
 
   const register = async (payload) => {
     const data = await api.post('/api/auth/register', payload);
+    saveAuthToken(data.token);
     setUser(data.user);
     return data.user;
   };
 
   const googleLogin = async (credential) => {
     const data = await api.post('/api/auth/google', { credential });
+    saveAuthToken(data.token);
     setUser(data.user);
     return data.user;
   };
@@ -45,6 +48,7 @@ export function AuthProvider({ children }) {
       await api.post('/api/auth/logout');
     } finally {
       // Clear the UI session even if the server session has already expired.
+      clearAuthToken();
       setUser(null);
     }
   };

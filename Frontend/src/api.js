@@ -1,4 +1,13 @@
 export const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000';
+const AUTH_TOKEN_KEY = 'coolgym_auth_token';
+
+export function saveAuthToken(token) {
+  if (token) localStorage.setItem(AUTH_TOKEN_KEY, token);
+}
+
+export function clearAuthToken() {
+  localStorage.removeItem(AUTH_TOKEN_KEY);
+}
 
 async function request(path, { method = 'GET', body, isFormData = false } = {}) {
   const opts = {
@@ -6,6 +15,8 @@ async function request(path, { method = 'GET', body, isFormData = false } = {}) 
     credentials: 'include', // send/receive the cross-site session cookie
     headers: {},
   };
+  const token = localStorage.getItem(AUTH_TOKEN_KEY);
+  if (token) opts.headers.Authorization = `Bearer ${token}`;
 
   if (body !== undefined) {
     if (isFormData) {
